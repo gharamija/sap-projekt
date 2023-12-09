@@ -32,19 +32,38 @@ dates = read.csv("speed_date_data.csv")
 head(participants)
 head(dates)
 ```
+Na temelju podataka vidimo da je set podataka za participante sadrži 40 stupaca dok za podatke o spojevima sadrži 19.  
 
-Na temelju
+Tu se može izbaciti stupce koji nisu uopće potrebni u analizi jer se iz njih ne moze nist zaključiti. Osim toga možemo tu raditi pomoćne datasetove koji će se koristiti u određenim analizama, npr. priprema podataka za linearnu regresiju. 
+
+Osim toga promijeniti klase nekih varijabla koje nisu tocne u pocetnim datasetovima...npr. spol mozemo pretvoriti u numericku ako je lakse, "importance_same_race" je klasa character (nije mi jasno zakaj)
+
+U dates data frameu ima dosta podataka koji su NA, odluciti kaj tocno napraviti s njima
 
 ## Deskriptivna Statistika
 
+```{r}
+# Osnovna deskriptivna statistika:
+summary(participants)
+summary(dates)
+```
+
+
+Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
+
+tu ide prikaz podataka koji su relevantni, vizualizacija istih...histogram, scatter plot, box plot
+
+  - za gaming i zaposljenje mozemo napraviti box plot pomocu group by po zaposlenju (za svako zaposlenje novi box plot)
+  - scatter plot za inteligenciju i fizicki izgled sa dvije razlicite boje
+  
+trebamo dogovoriti kaj napraviti za trecu hipotezu
+
 ## Inferencijalna analiza
+
+tu idu hipoteze, testovi...
+
+mozda sam skroz krivo napravil inicijalno..hipoteze se mozda ne smiju spominjati do ovog djela, ali onda trebamo za svih 102015 varijabli napraviti statistiku i vizualizaciju
 
 ## Zaključak
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+zakljucak na kraju svega WOHOOO
