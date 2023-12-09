@@ -1,0 +1,50 @@
+---
+title: "Projekt Speed Dating"
+author: "Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa Markić"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+```
+
+## Uvod
+
+U ovom projektnom zadatku, naziva Speed Dating, analizirat ćemo skup podataka prikupljen između 2002. i 2004. godine u sklopu kolegija Statistička analiza podataka na Fakultetu elektrotehnike i računarstva. Dostupni su dva skupa podataka, a analizirat ćemo ih pomoću deskriptivne statistike i inferencijalne analize kako bismo dobili dublji uvid u ponašanje sudionika i međuodnose varijabli.
+
+Ciljevi ovog projekta su upoznavanje s dostupnim podacima o sudionicima i spojevima te izvlačenje relevantnih informacija pomoću deskriptivne statistike i inferencijalne analize. Paralelno s analizom, planiramo unaprijediti svoje razumijevanje osnovnih metodologija statističke analize podataka i praktičnu primjenu programskog jezika R što ćemo primijeniti na sljedećim hipotezama na temelju kojih ćemo izvući zaključke:
+
+1. Je li inteligencija partnera ispitanicima važnija od izgleda?
+2. Postoji li razlika u interesu za gaming prema zanimanju sudionika?
+3. Možemo li temeljem drugih varijabli predvidjeti hoće li se sudioniku svidjeti partner?
+
+Počet ćemo s analizom deskriptivne statistike kako bismo stekli osnovni uvid u varijable poput starosti, spola, zanimanja i ocjena partnera. Nakon toga, primijenit ćemo inferencijalnu analizu kako bismo istražili postavljene hipoteze, uključujući pitanja o važnosti inteligencije partnera u odnosu na izgled te razlike u interesu za gaming prema zanimanju sudionika.
+
+Ovaj projekt ima značajnost iz perspektive studenata, poput nas samih, jer nam pruža priliku primijeniti stečeno znanje o statističkoj analizi podataka u stvarnom svijetu. Uvid u ovakav skup podataka može pomoći studentima u donošenju informiranih odluka u svakodnevnom životu, bilo da se radi o razumijevanju međuljudskih odnosa ili donošenju odluka temeljenih na vlastitim preferencijama.
+
+## Učitavanje i prikaz podataka
+
+```{r}
+participants = read.csv("participant_data.csv")
+dates = read.csv("speed_date_data.csv")
+head(participants)
+head(dates)
+```
+
+Na temelju
+
+## Deskriptivna Statistika
+
+## Inferencijalna analiza
+
+## Zaključak
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
