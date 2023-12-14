@@ -51,18 +51,44 @@ summary(dates)
 
 Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
 
-tu ide prikaz podataka koji su relevantni, vizualizacija istih...histogram, scatter plot, box plot
+#TODO:tu ide prikaz podataka koji su relevantni, vizualizacija istih...histogram, scatter plot, box plot
+Promotrimo relevantne varijable koje ćemo kasnije koristiti u istraživačkim pitanjima.
+U vezi prvog pitanja bitni su nam inteligencija i fizički izgled partnera.
 
-  - za gaming i zaposljenje mozemo napraviti box plot pomocu group by po zaposlenju (za svako zaposlenje novi box plot)
-  - scatter plot za inteligenciju i fizicki izgled sa dvije razlicite boje
+```{r, fig.width = 14, fig.height=5}
+hist(participants$intelligence_important,main='Značajnost inteligenciju kod partnera', xlab='Inteligence', ylab='Frequency')
+hist(participants$attractive_important,main='Značajnost izgleda kod partnera', xlab='Attractivnes', ylab = 'Frequency')
+```
+Možemo vidjeti da je kod večine ljudi inteligencija bitnija od izgleda kod partnera.
+
+Podatke koje ćemo također analizirati su ocjene partnerove inteligencije i izgleda nakon speed datinga.
+```{r,fig.width = 14, fig.height=5}
+hist(dates$intelligence_o,main='Ocjena inteligencije', xlab='Inteligence grade', ylab='Frequency')
+hist(dates$attractive_o,main='Ocjena izgleda', xlab='Attractivnes grade', ylab='Frequency')
+```
+
+
+#TODO:za gaming i zaposljenje mozemo napraviti box plot pomocu group by po zaposlenju (za svako zaposlenje novi box plot) 
+#scatter plot za inteligenciju i fizicki izgled sa dvije razlicite boje
   
-trebamo dogovoriti kaj napraviti za trecu hipotezu
+#TODO:trebamo dogovoriti kaj napraviti za trecu hipotezu
 
 ## Inferencijalna analiza
 
-tu idu hipoteze, testovi...
+#tu idu hipoteze, testovi...
 
-mozda sam skroz krivo napravil inicijalno..hipoteze se mozda ne smiju spominjati do ovog djela, ali onda trebamo za svih 102015 varijabli napraviti statistiku i vizualizaciju
+#mozda sam skroz krivo napravil inicijalno..hipoteze se mozda ne smiju spominjati do ovog djela, ali onda trebamo za svih 102015 varijabli napraviti statistiku i vizualizaciju
+
+Prvo istraživačko pitanje glasi : Je li inteligencija partnera ispitanicima vaznija od izgleda?
+
+$$ \begin{aligned}
+H_0&: \\
+H_1&: \
+\end{aligned} $$
+
+Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zanimanju sudionika?
+
+Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
 ## Zaključak
 
