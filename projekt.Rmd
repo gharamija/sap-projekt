@@ -55,9 +55,20 @@ Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima
 Promotrimo relevantne varijable koje ćemo kasnije koristiti u istraživačkim pitanjima.
 U vezi prvog pitanja bitni su nam inteligencija i fizički izgled partnera.
 
+### Je li inteligencija partnera ispitanicima važnija od izgleda?
+
+Za ovo pitanje su nam bitni podaci o važnosti izgleda, odnosno inteligencije kod ispitanika.
+Prvo ćemo izvaditi sve null vrijednosti iz podataka.
+```{r}
+cleaned_intelligence <- na.omit(participants$intelligence_important)
+cleaned_attractiveness <- na.omit(participants$attractive_important)
+```
+
+Te ćemo te podatke prikazati uz pomoć histograma.
+
 ```{r, fig.width = 14, fig.height=5}
-hist(participants$intelligence_important,main='Značajnost inteligenciju kod partnera', xlab='Inteligence', ylab='Frequency')
-hist(participants$attractive_important,main='Značajnost izgleda kod partnera', xlab='Attractivnes', ylab = 'Frequency')
+hist(na.omit(participants$intelligence_important), main='Značajnost inteligenciju kod partnera', xlab='Intelligence', ylab='Frequency')
+hist(na.omit(participants$attractive_important), main='Značajnost privlačnosti kod partnera', xlab='Attractiveness', ylab='Frequency')
 ```
 Možemo vidjeti da je kod večine ljudi inteligencija bitnija od izgleda kod partnera.
 
@@ -66,6 +77,75 @@ Podatke koje ćemo također analizirati su ocjene partnerove inteligencije i izg
 hist(dates$intelligence_o,main='Ocjena inteligencije', xlab='Inteligence grade', ylab='Frequency')
 hist(dates$attractive_o,main='Ocjena izgleda', xlab='Attractivnes grade', ylab='Frequency')
 ```
+Podatke o važnosti atraktivnosti i inteligencije ćemo usporediti u histogramu.
+```{r}
+merged_data <- inner_join(participants, dates, by = c("id" = "participant_id"))
+
+b <- seq(0, 100, by = 5)
+
+h1 <- hist(na.omit(participants$intelligence_important), breaks = b, plot = FALSE)
+
+
+h2 <- hist(na.omit(participants$attractive_important), breaks = b, plot = FALSE)
+
+data <- t(cbind(h1$counts, h2$counts))
+barplot(data, beside = TRUE, col = c("purple", "lightgreen"), xlab = "Importance", ylab = 'Frequency')
+legend("topright",c("intelligence","attractiveness"),fill = c( "purple", "lightgreen"))
+```
+Normalnost podataka ćemo provjeriti uz pomoć qqplot-ova i testom o jednakosti varijanci.
+```{r}
+qqnorm(na.omit(participants$attractive_important), pch = 1, frame = FALSE, main = "Važnost izgleda")
+qqline(na.omit(participants$attractive_important), col = "blue", lwd = "2")
+
+# QQ plot for intelligence_important without NA values
+qqnorm(na.omit(participants$intelligence_important), pch = 1, frame = FALSE, main = "Važnost inteligencije")
+qqline(na.omit(participants$intelligence_important), col = "blue", lwd = "2")
+```
+
+Uz pretpostavku normalnosti podataka možemo nastaviti testiranje varijanca.
+
+Provest ćemo test o jednakosti varijanci uz pomoć F-testa.
+$$F = \frac{S_{X_1}^2 / \sigma_1^2}{S_{X_2}^2 / \sigma_2^2}$$
+Pri ćemu za statistike s1 (intelligence_important) i s2 (attractive_important) vrijedi :
+$$S_{X_1}^2 = \frac{1}{n_1 - 1} \sum_{i = 1}^{n_1} (X_1^i - \bar{X}_1)^2, \quad S_{X_2}^2 = \frac{1}{n_2 - 1} \sum_{i = 1}^{n_2} (X_2^i - \bar{X}_2)^2.$$
+Uz $(n_1 - 1, n_2 - 1)$ stupnjeva slobode.
+Hipoteze testa o jednakosti varijanca glase :
+$$ \begin{aligned}
+H_0&: \sigma_1^2 = \sigma_2^2 \\
+H_1&: \sigma_1^2 \neq \sigma_2^2
+\end{aligned} $$
+
+Varijanca važnosti izgleda:
+```{r}
+var_attractive <- var(na.omit(participants$attractive_important))
+cat("Varijanca od attractive_important:", var_attractive, "\n")
+```
+Varijanca važnosti inteligencije:
+```{r}
+var_intelligence <- var(na.omit(participants$intelligence_important))
+cat("Varijanca od intelligence_important:", var_intelligence, "\n")
+```
+Te radimo F-test:
+```{r}
+var.test(participants$attractive_important, participants$intelligence_important)
+```
+Zaključujemo uz p-vrijednost od 2.2e-16 da su te varijance različite. Odbacujemo H0 hipotezu u koristi H1 te ćemo koristiti T-test za dva uzorka uz nejednake varijance. 
+
+T-test za dva auzorka uz nepoznate i nejednake varijance
+
+$$ \begin{aligned}
+H_0&: Inteligencija \quad je \quad vaznija\quad od \quad izgleda \\
+H_1&: Inteligencija \quad nije \quad važnija \quad od \quad izgleda
+\end{aligned} $$
+```{r}
+t_test_result <- t.test(participants$intelligence_important, 
+                        participants$attractive_important, 
+                        var.equal = FALSE)
+
+print(t_test_result)
+```
+Uz malu p-vrijednost od 0.000175 odbacujemo hipotezu H0 u korist H1.
+
 
 
 #TODO:za gaming i zaposljenje mozemo napraviti box plot pomocu group by po zaposlenju (za svako zaposlenje novi box plot) 
@@ -75,16 +155,6 @@ hist(dates$attractive_o,main='Ocjena izgleda', xlab='Attractivnes grade', ylab='
 
 ## Inferencijalna analiza
 
-#tu idu hipoteze, testovi...
-
-#mozda sam skroz krivo napravil inicijalno..hipoteze se mozda ne smiju spominjati do ovog djela, ali onda trebamo za svih 102015 varijabli napraviti statistiku i vizualizaciju
-
-Prvo istraživačko pitanje glasi : Je li inteligencija partnera ispitanicima vaznija od izgleda?
-
-$$ \begin{aligned}
-H_0&: \\
-H_1&: \
-\end{aligned} $$
 
 Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zanimanju sudionika?
 
