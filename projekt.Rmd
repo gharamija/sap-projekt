@@ -47,8 +47,66 @@ U dates data frameu ima dosta podataka koji su NA, odluciti kaj tocno napraviti 
 summary(participants)
 summary(dates)
 ```
+Čišćenje dataset:
 
+Nepostojeće vrijednosti:
+```{r}
+# sum(is.na(dates$attractive_o))
+# sum(is.na(dates$sincere_o))
+# sum(is.na(dates$intelligence_o))
+# sum(is.na(dates$funny_o))
+# sum(is.na(dates$ambitious_o))
+# sum(is.na(dates$shared_interests_o))
+# sum(is.na(dates$attractive_partner))
+# sum(is.na(dates$sincere_partner))
+# sum(is.na(dates$intelligence_partner))
+# sum(is.na(dates$funny_partner))
+# sum(is.na(dates$ambition_partner))
+# sum(is.na(dates$shared_interests_partner))
+# sum(is.na(dates$like))
+# sum(is.na(dates$guess_prob_liked))
+# sum(is.na(dates$met))
+# sum(is.na(dates$decision))
 
+na_count_per_column <- sapply(dates, function(x) sum(is.na(x)))
+data.frame(Column = names(na_count_per_column), NA_Count = na_count_per_column)
+dates[!complete.cases(dates),]
+```
+
+```{r}
+columns_of_interest <- c("attractive_o", "sincere_o", "intelligence_o", "funny_o", "ambitious_o", "shared_interests_o",
+                         "attractive_partner", "sincere_partner", "intelligence_partner", "funny_partner",
+                         "ambition_partner", "shared_interests_partner", "like", "guess_prob_liked", "met")
+threshold <- length(columns_of_interest) / 2
+partially_filtered_dates <- dates[rowSums(is.na(dates[, columns_of_interest])) <= threshold, ]
+partially_filtered_dates
+
+```
+
+````{r}
+partially_filtered_dates[, columns_of_interest] <- lapply(partially_filtered_dates[, columns_of_interest, drop = FALSE], function(x) {
+  median_value <- median(x, na.rm = TRUE)
+  x[is.na(x)] <- median_value
+  return(x)
+})
+
+filtered_dates <- partially_filtered_dates
+filtered_dates
+
+````
+
+Stršeće vrijednosti
+```{r}
+boxplots <- lapply(columns_of_interest, function(column_name) {
+  boxplot(filtered_dates[[column_name]], main = column_name)
+})
+
+```
+```{r}
+filtered_dates$met[filtered_dates$met > 1] <- 1
+
+unique(filtered_dates$met)
+```
 Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
 
 #TODO:tu ide prikaz podataka koji su relevantni, vizualizacija istih...histogram, scatter plot, box plot
