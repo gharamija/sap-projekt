@@ -8,6 +8,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(lmtest)
+
 ```
 
 ## Uvod
@@ -217,6 +219,34 @@ Uz malu p-vrijednost od 0.000175 odbacujemo hipotezu H0 u korist H1.
 Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zanimanju sudionika?
 
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
+
+```{r}
+logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = filetered_dates, family = "binomial")
+
+summary(logistic_model)
+```
+
+```{r}
+models <- list()
+
+for (col in columns_of_interest) {
+  formula <- as.formula(paste("decision ~", paste(columns_of_interest[!columns_of_interest %in% col], collapse = "+")))
+  model <- glm(formula, data = filetered_dates, family = "binomial")
+  models[[col]] <- model
+}
+
+p_values <- numeric(length(columns_of_interest))
+i = 1
+for(col in columns_of_interest) {
+  p_value <- lrtest(logistic_model, models[[col]])$`Pr(>Chisq)`[2]
+  #print(p_value)
+  p_values[i] <- p_value
+  i <- i+1
+}
+
+p_values <- data.frame(column = columns_of_interest, p_value = p_values)
+p_values
+```
 
 
 
