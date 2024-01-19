@@ -11,7 +11,7 @@
 
 <meta name="author" content="Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa Markić" />
 
-<meta name="date" content="2024-01-16" />
+<meta name="date" content="2024-01-19" />
 
 <title>Projekt Speed Dating</title>
 
@@ -353,7 +353,7 @@ display: none;
 <h1 class="title toc-ignore">Projekt Speed Dating</h1>
 <h4 class="author">Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa
 Markić</h4>
-<h4 class="date">2024-01-16</h4>
+<h4 class="date">2024-01-19</h4>
 
 </div>
 
@@ -740,10 +740,497 @@ inteligenciju i fizicki izgled sa dvije razlicite boje</p>
 <p>#TODO:trebamo dogovoriti kaj napraviti za trecu hipotezu</p>
 </div>
 </div>
-<div id="inferencijalna-analiza" class="section level2">
-<h2>Inferencijalna analiza</h2>
-<p>Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti
-prema zanimanju sudionika?</p>
+<div id="drugo-istraživacko-pitanje-glasi-postoji-li-razlika-u-interesu-za-gaming-prema-zanimanju-sudionika" class="section level2">
+<h2>Drugo istraživacko pitanje glasi : Postoji li razlika u interesu za
+gaming prema zanimanju sudionika?</h2>
+<p>Za ovo pitanje bitni su nam podaci o zanimanju sudionika te o
+interesu koji imaju za gaming.Potrebno je podatke očistiti prije
+njihovog korištenja. Podatke o interesu za gaming ćemo očistiti na način
+da se nepostojeći podaci o ocjeni zamjene sa medijanom svih ocjena svih
+sudionika. Podatke o zanimanju sudionika očistit ćemo tako što čemo
+ukloniti podatke o sudionicima za koje je zanimanje ne definirano.</p>
+<pre class="r"><code>summary(participants$gaming)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.000   3.000   3.874   6.000  14.000</code></pre>
+<pre class="r"><code>sum(is.na(participants$gaming))</code></pre>
+<pre><code>## [1] 0</code></pre>
+<pre class="r"><code>cleaned_gaming &lt;- participants$gaming[is.na(participants$gaming)] &lt;- median(participants$gaming)
+cleaned_field &lt;- na.omit(participants$field)
+participants$gaming[participants$gaming &gt; 10] &lt;- 10
+summary(participants$gaming)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.000   1.000   3.000   3.837   6.000  10.000</code></pre>
+<p>Kategorizacija podataka Prikaz zanimanja:</p>
+<pre class="r"><code>head(table(participants$field))</code></pre>
+<pre><code>## 
+##                           Acting African-American Studies/History 
+##                                1                                1 
+##                 American Studies       American Studies [Masters] 
+##                                1                                1 
+##                     anthropology                     Anthropology 
+##                                1                                1</code></pre>
+<pre class="r"><code>length(unique(participants$field))</code></pre>
+<pre><code>## [1] 252</code></pre>
+<p>Želimo grupirati zanimanja po sličnosti. Prvo sva zanimanja
+pretvaramo u mala slova.</p>
+<pre class="r"><code>participants$field &lt;- tolower(participants$field)
+table(participants$field)</code></pre>
+<pre><code>## 
+##                                                   acting 
+##                                                        1 
+##                         african-american studies/history 
+##                                                        1 
+##                                         american studies 
+##                                                        1 
+##                               american studies [masters] 
+##                                                        1 
+##                                             anthropology 
+##                                                        2 
+##                                   anthropology/education 
+##                                                        1 
+##                                      applied maths/econs 
+##                                                        1 
+##                           applied physiology &amp; nutrition 
+##                                                        1 
+##                                             architecture 
+##                                                        1 
+##                                            art education 
+##                                                        3 
+##                                              art history 
+##                                                        2 
+##                                     art history/medicine 
+##                                                        1 
+##                                      arts administration 
+##                                                        1 
+##                                      bilingual education 
+##                                                        2 
+##                                             biochemistry 
+##                                                        4 
+##                      biochemistry &amp; molecular biophysics 
+##                                                        1 
+##                                    biochemistry/genetics 
+##                                                        1 
+##                                                  biology 
+##                                                        8 
+##                                              biology phd 
+##                                                        1 
+##                                   biomedical engineering 
+##                                                        6 
+##                                   biomedical informatics 
+##                                                        2 
+##                                              biomedicine 
+##                                                        1 
+##                                            biotechnology 
+##                                                        3 
+##                                                 business 
+##                                                       43 
+##                                            business- mba 
+##                                                        1 
+##                         business &amp; international affairs 
+##                                                        1 
+##                           business [finance &amp; marketing] 
+##                                                        1 
+##                                           business [mba] 
+##                                                        4 
+##                                  business administration 
+##                                                        1 
+## business and international affairs [mba/mia dual degree] 
+##                                                        1 
+##                                      business consulting 
+##                                                        1 
+##                                          business school 
+##                                                        2 
+##                           business/ finance/ real estate 
+##                                                        1 
+##                                             business/law 
+##                                                        1 
+##                                             cell biology 
+##                                                        1 
+##                                                chemistry 
+##                                                        5 
+##                                                 classics 
+##                                                        3 
+##                       climate-earth and environ. science 
+##                                                        1 
+##                                           climate change 
+##                                                        1 
+##                                         climate dynamics 
+##                                                        1 
+##                                      clinical psychology 
+##                                                        4 
+##                           cognitive studies in education 
+##                                                        1 
+##                                           communications 
+##                                                        1 
+##                              communications in education 
+##                                                        1 
+##                                   comparative literature 
+##                                                        1 
+##                              computational biochemsistry 
+##                                                        1 
+##                                         computer science 
+##                                                        4 
+##                                     conservation biology 
+##                                                        1 
+##                                               consulting 
+##                                                        1 
+##                                    counseling psychology 
+##                                                        2 
+##                                         creative writing 
+##                                                        1 
+##                            creative writing - nonfiction 
+##                                                        1 
+##                            creative writing [nonfiction] 
+##                                                        1 
+##                       curriculum and teaching/giftedness 
+##                                                        1 
+##                                early childhood education 
+##                                                        1 
+##                          earth and environmental science 
+##                                                        1 
+##                                                  ecology 
+##                                                        1 
+##                                                economics 
+##                                                        6 
+##                          economics and political science 
+##                                                        1 
+##                   ed.d. in higher education policy at tc 
+##                                                        1 
+##                                                education 
+##                                                        7 
+##                           education- literacy specialist 
+##                                                        1 
+##                                 education administration 
+##                                                        1 
+##      education leadership - public school administration 
+##                                                        1 
+##                                         education policy 
+##                                                        2 
+##                                   educational psychology 
+##                                                        1 
+##                                         electrical engg. 
+##                                                        1 
+##                                   electrical engineering 
+##                                                       14 
+##                                     elementary education 
+##                                                        3 
+##                        elementary education - preservice 
+##                                                        1 
+##                      elementary/childhood education [ma] 
+##                                                        1 
+##                                              engineering 
+##                                                        8 
+##                                                  english 
+##                                                        3 
+##                                     english and comp lit 
+##                                                        1 
+##                                        english education 
+##                                                        1 
+##                                environmental engineering 
+##                                                        1 
+##                                             epidemiology 
+##                                                        4 
+##                                                     film 
+##                                                        6 
+##                                                 finanace 
+##                                                        1 
+##                                                  finance 
+##                                                        9 
+##                                        finance&amp;economics 
+##                                                        1 
+##                                        finance/economics 
+##                                                        1 
+##                                    financial engineering 
+##                                                        2 
+##                                           financial math 
+##                                                        1 
+##                                                   french 
+##                                                        1 
+##                                   fundraising management 
+##                                                        1 
+##                               general management/finance 
+##                                                        1 
+##                                                 genetics 
+##                                                        3 
+##                                   genetics &amp; development 
+##                                                        1 
+##                                        german literature 
+##                                                        1 
+##                                       gs postbacc premed 
+##                                                        1 
+##                                                     gsas 
+##                                                        1 
+##                                            health policy 
+##                                                        1 
+##                                        higher ed. - m.a. 
+##                                                        1 
+##                                                  history 
+##                                                        3 
+##                                     history [gsas - phd] 
+##                                                        1 
+##                                      history of religion 
+##                                                        1 
+##                                             human rights 
+##                                                        1 
+##                                human rights: middle east 
+##                                                        1 
+##                                   industrial engineering 
+##                                                        1 
+##               industrial engineering/operations research 
+##                                                        1 
+##                       instructional media and technology 
+##                                                        1 
+##                               instructional tech &amp; media 
+##                                                        1 
+##                                intellectual property law 
+##                                                        1 
+##                                    international affairs 
+##                                                       17 
+##             international affairs - economic development 
+##                                                        1 
+##                  international affairs - economic policy 
+##                                                        1 
+##                  international affairs and public health 
+##                                                        1 
+##                           international affairs/business 
+##                                                        1 
+##                            international affairs/finance 
+##                                                        1 
+##              international affairs/international finance 
+##                                                        1 
+##                                   international business 
+##                                                        2 
+##                                international development 
+##                                                        1 
+##                    international educational development 
+##                                                        1 
+##                                    international finance 
+##                                                        1 
+##                       international finance and business 
+##                                                        1 
+##                                   international politics 
+##                                                        1 
+##                                  international relations 
+##                                                        1 
+##                     international security policy - sipa 
+##                                                        1 
+##                                   intrernational affairs 
+##                                                        1 
+##                                      japanese literature 
+##                                                        1 
+##                                               journalism 
+##                                                        3 
+##                                                      law 
+##                                                       44 
+##                  law and english literature [j.d./ph.d.] 
+##                                                        1 
+##                                      law and social work 
+##                                                        1 
+##                                             law/business 
+##                                                        1 
+##                                         ma biotechnology 
+##                                                        2 
+##                               ma in quantitative methods 
+##                                                        1 
+##                                     ma science education 
+##                                                        1 
+##                               ma teaching social studies 
+##                                                        1 
+##                                        marine geophysics 
+##                                                        1 
+##                                                marketing 
+##                                                        1 
+##                          master in public administration 
+##                                                        1 
+##                          master of international affairs 
+##                                                        1 
+##                         masters in public administration 
+##                                                        2 
+##                        masters of industrial engineering 
+##                                                        1 
+##                                   masters of social work 
+##                                                        1 
+##                         masters of social work&amp;education 
+##                                                        1 
+##                                                     math 
+##                                                        2 
+##                                           math education 
+##                                                        1 
+##                                          math of finance 
+##                                                        1 
+##                                     mathematical finance 
+##                                                        1 
+##                                              mathematics 
+##                                                        6 
+##                                                      mba 
+##                                                       35 
+##                       mba - private equity / real estate 
+##                                                        1 
+##             mba / master of international affairs [sipa] 
+##                                                        1 
+##                                              mba finance 
+##                                                        1 
+##                                   mechanical engineering 
+##                                                        3 
+##                                      medical informatics 
+##                                                        2 
+##                                                 medicine 
+##                                                        5 
+##                                medicine and biochemistry 
+##                                                        1 
+##                                                mfa -film 
+##                                                        1 
+##                                              mfa  poetry 
+##                                                        1 
+##                                       mfa acting program 
+##                                                        1 
+##                                     mfa creative writing 
+##                                                        2 
+##                                              mfa writing 
+##                                                        1 
+##                                             microbiology 
+##                                                        3 
+##                                modern chinese literature 
+##                                                        1 
+##                                        molecular biology 
+##                                                        1 
+##                                                    money 
+##                                                        1 
+##                                      museum anthropology 
+##                                                        1 
+##                                          music education 
+##                                                        3 
+##                                             neurobiology 
+##                                                        1 
+##                                             neuroscience 
+##                                                        1 
+##                               neuroscience and education 
+##                                                        1 
+##                                 neurosciences/stem cells 
+##                                                        1 
+##                                       nonfiction writing 
+##                                                        2 
+##                                                nutrition 
+##                                                        2 
+##                                       nutrition/genetics 
+##                                                        1 
+##                                               nutritiron 
+##                                                        1 
+##                                      operations research 
+##                                                        3 
+##                               operations research [seas] 
+##                                                        1 
+##                                organizational psychology 
+##                                                        2 
+##                                               philosophy 
+##                                                        3 
+##                                       philosophy [ph.d.] 
+##                                                        1 
+##                                   philosophy and physics 
+##                                                        1 
+##                                                  physics 
+##                                                        5 
+##                                   physics [astrophysics] 
+##                                                        1 
+##                                                   polish 
+##                                                        1 
+##                                        political science 
+##                                                        7 
+##                                               psychology 
+##                                                       12 
+##                                   psychology and english 
+##                                                        1 
+##                                    public administration 
+##                                                        2 
+##                                            public health 
+##                                                        1 
+##                                            public policy 
+##                                                        1 
+##                                                     qmss 
+##                                                        1 
+##                                                 religion 
+##                                                        2 
+##                                        school psychology 
+##                                                        4 
+##                               sipa-international affairs 
+##                                                        2 
+##                                            sipa - energy 
+##                                                        1 
+##                                               sipa / mia 
+##                                                        1 
+##                                           soa -- writing 
+##                                                        1 
+##                                 social studies education 
+##                                                        1 
+##                                              social work 
+##                                                       26 
+##                                         social work/sipa 
+##                                                        1 
+##                                                sociology 
+##                                                        8 
+##                                  sociology and education 
+##                                                        1 
+##           sociomedical sciences- school of public health 
+##                                                        1 
+##                                speech language pathology 
+##                                                        1 
+##                                         speech pathology 
+##                                                        2 
+##                                               statistics 
+##                                                        3 
+##                                                    stats 
+##                                                        1 
+##                                           tc [health ed] 
+##                                                        1 
+##                                      teaching of english 
+##                                                        1 
+##                                                    tesol 
+##                                                        1 
+##                                                  theater 
+##                                                        2 
+##                           theatre management &amp; producing 
+##                                                        1 
+##                                                   theory 
+##                                                        1 
+##                                           undergrad - gs 
+##                                                        1 
+##                                           urban planning 
+##                                                        4 
+##                                                  working 
+##                                                        1 
+##                             writing: literary nonfiction 
+##                                                        1</code></pre>
+<pre class="r"><code>length(unique(participants$field))</code></pre>
+<pre><code>## [1] 212</code></pre>
+<p>Sada pokušavamo slična zanimanja grupirati zajedno.</p>
+<pre class="r"><code># Replace &#39;participants&#39; with your actual data frame name
+economy_keywords &lt;- c(&quot;economy&quot;, &quot;economic&quot;, &quot;econs&quot;)
+art_keywords &lt;- c(&quot;art&quot;, &quot;creative&quot;)
+science_keywords &lt;- c(&quot;science&quot;, &quot;scientific&quot;, &quot;chemistry&quot;, &quot;biology&quot;, &quot;biomedical&quot;, &quot;biotechnology &quot;)
+business_keywords &lt;- c(&quot;business&quot;)
+
+# Grupiranje po kategorijama (Grouping by categories)
+participants$category &lt;- participants$field
+
+# Check for matches in &#39;participants$field&#39; and assign corresponding categories
+if (any(agrep(paste(economy_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
+  participants$category &lt;- &quot;Economy&quot;
+} else if (any(agrep(paste(art_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
+  participants$category &lt;- &quot;Art&quot;
+} else if (any(agrep(paste(science_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
+  participants$category &lt;- &quot;Science&quot;
+} else if (any(agrep(paste(business_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
+  participants$category &lt;- &quot;Business&quot;
+}
+# If no match, retain the original category</code></pre>
+<pre class="r"><code>table(participants$category)</code></pre>
+<pre><code>## 
+## Business 
+##      540</code></pre>
+<pre class="r"><code>length(unique(participants$category))</code></pre>
+<pre><code>## [1] 1</code></pre>
+<pre class="r"><code>length(unique(participants$field))</code></pre>
+<pre><code>## [1] 212</code></pre>
 <p>Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli
 predvidjeti hoće li speed date biti uspješniji?</p>
 </div>

@@ -153,10 +153,76 @@ Uz malu p-vrijednost od 0.000175 odbacujemo hipotezu H0 u korist H1.
   
 #TODO:trebamo dogovoriti kaj napraviti za trecu hipotezu
 
-## Inferencijalna analiza
 
 
-Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zanimanju sudionika?
+
+## Drugo istraživacko pitanje glasi : Postoji li razlika u interesu za gaming prema zanimanju sudionika?
+
+Za ovo pitanje bitni su nam podaci o zanimanju sudionika te o interesu koji imaju za gaming.Potrebno je podatke očistiti prije njihovog korištenja.
+Podatke o interesu za gaming ćemo očistiti na način da se nepostojeći podaci o ocjeni zamjene sa medijanom svih ocjena svih sudionika.
+Podatke o zanimanju sudionika očistit ćemo tako što čemo ukloniti podatke o sudionicima za koje je zanimanje ne definirano.
+
+
+
+```{r}
+summary(participants$gaming)
+sum(is.na(participants$gaming))
+cleaned_gaming <- participants$gaming[is.na(participants$gaming)] <- median(participants$gaming)
+cleaned_field <- na.omit(participants$field)
+participants$gaming[participants$gaming > 10] <- 10
+summary(participants$gaming)
+```
+
+Kategorizacija podataka
+Prikaz zanimanja:
+```{r}
+head(table(participants$field))
+length(unique(participants$field))
+```
+
+Želimo grupirati zanimanja po sličnosti.
+Prvo sva zanimanja pretvaramo u mala slova.
+
+```{r}
+participants$field <- tolower(participants$field)
+table(participants$field)
+length(unique(participants$field))
+```
+
+Sada pokušavamo slična zanimanja grupirati zajedno.
+
+```{r}
+# Replace 'participants' with your actual data frame name
+economy_keywords <- c("economy", "economic", "econs")
+art_keywords <- c("art", "creative")
+science_keywords <- c("science", "scientific", "chemistry", "biology", "biomedical", "biotechnology ")
+business_keywords <- c("business")
+
+# Grupiranje po kategorijama (Grouping by categories)
+participants$category <- participants$field
+
+# Check for matches in 'participants$field' and assign corresponding categories
+if (any(agrep(paste(economy_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
+  participants$category <- "Economy"
+} else if (any(agrep(paste(art_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
+  participants$category <- "Art"
+} else if (any(agrep(paste(science_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
+  participants$category <- "Science"
+} else if (any(agrep(paste(business_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
+  participants$category <- "Business"
+}
+# If no match, retain the original category
+
+
+```
+
+```{r}
+table(participants$category)
+length(unique(participants$category))
+length(unique(participants$field))
+```
+
+
 
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
