@@ -761,14 +761,6 @@ summary(participants$gaming)</code></pre>
 <pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 ##   0.000   1.000   3.000   3.837   6.000  10.000</code></pre>
 <p>Kategorizacija podataka Prikaz zanimanja:</p>
-<pre class="r"><code>head(table(participants$field))</code></pre>
-<pre><code>## 
-##                           Acting African-American Studies/History 
-##                                1                                1 
-##                 American Studies       American Studies [Masters] 
-##                                1                                1 
-##                     anthropology                     Anthropology 
-##                                1                                1</code></pre>
 <pre class="r"><code>length(unique(participants$field))</code></pre>
 <pre><code>## [1] 252</code></pre>
 <p>Želimo grupirati zanimanja po sličnosti. Prvo sva zanimanja
@@ -1204,33 +1196,97 @@ table(participants$field)</code></pre>
 <pre><code>## [1] 212</code></pre>
 <p>Sada pokušavamo slična zanimanja grupirati zajedno.</p>
 <pre class="r"><code># Replace &#39;participants&#39; with your actual data frame name
-economy_keywords &lt;- c(&quot;economy&quot;, &quot;economic&quot;, &quot;econs&quot;)
-art_keywords &lt;- c(&quot;art&quot;, &quot;creative&quot;)
-science_keywords &lt;- c(&quot;science&quot;, &quot;scientific&quot;, &quot;chemistry&quot;, &quot;biology&quot;, &quot;biomedical&quot;, &quot;biotechnology &quot;)
-business_keywords &lt;- c(&quot;business&quot;)
+economy_keywords &lt;- c(&quot;economy&quot;, &quot;economics&quot;, &quot;econs&quot;, &quot;applied maths&quot;)
+art_keywords &lt;- c(&quot;art&quot;, &quot;arts&quot;, &quot;acting&quot;, &quot;film&quot;, &quot;theater&quot;, &quot;theatre&quot;)
+engineering_keywords &lt;- c(&quot;architecture&quot;, &quot;engineering&quot;, &quot;operations research&quot;, &quot;engg.&quot;, &quot;computer science&quot;) 
+social_science_keyword &lt;- c(&quot;american studies&quot;, &quot;history&quot;, &quot;anthropology&quot;, &quot;qmss&quot;, &quot;psychology&quot;, &quot;sociology&quot;, &quot;social&quot;, &quot;ma in quantitative methods&quot;)
+science_keywords &lt;- c(&quot;science&quot;, &quot;scientific&quot;, &quot;medicine&quot;, &quot;chemistry&quot;, &quot;biology&quot;, &quot;biomedical&quot;, &quot;biotechnology&quot;, &quot;biomedicine&quot;, &quot;biotechnology&quot;, &quot;biochemsistry&quot;, &quot;epidemiology&quot;, &quot;genetics&quot;, &quot;physics&quot;, &quot;marine geophysics&quot;, &quot;mathematics&quot;, &quot;math&quot;, &quot;statistics&quot;, &quot;stats&quot;)
+business_keywords &lt;- c(&quot;business&quot;, &quot;consulting&quot;, &quot;finance&quot;, &quot;fundraising&quot;, &quot;marketing&quot;, &quot;financial&quot;, &quot;mba&quot;, &quot;money&quot;, &quot;finanace&quot;)
+education_keywords &lt;- c(&quot;education&quot;, &quot;teaching&quot;, &quot;m.a.&quot;, &quot;instructional &quot;, &quot;tesol&quot;)
+humanities_keywords &lt;- c(&quot;classics&quot;, &quot;philosophy&quot;, &quot;religion&quot;)
+environmental_science_keywords &lt;- c(&quot;climate&quot;, &quot;ecology&quot;, &quot;urban planning&quot;)
+public_relations_keywords &lt;- c(&quot;communications&quot;, &quot;journalism&quot;, &quot;public administration&quot;, &quot;relations&quot;, &quot;public&quot;)
+literary_studies_keywords &lt;- c(&quot;literature&quot;, &quot;english&quot;, &quot;french&quot;, &quot;poetry&quot;, &quot;writing&quot;, &quot;polish&quot;)
+law_keywords &lt;- c(&quot;law&quot;, &quot;human rights&quot;)
+international_relations_keywords &lt;- c(&quot;international&quot;, &quot;intrernational affairs&quot;)
+health_sciences_keywords &lt;-c(&quot;nutrition&quot;, &quot;physiology&quot;, &quot;nutritiron&quot;, &quot;health&quot;, &quot;medical informatics&quot;, &quot;speech&quot;)
+student_keywords &lt;- c(&quot;sipa&quot;, &quot;soa&quot;, &quot;seas&quot;, &quot;undergrad - gs&quot;, &quot;postbacc&quot;, &quot;gsas&quot;)
 
-# Grupiranje po kategorijama (Grouping by categories)
-participants$category &lt;- participants$field
-
-# Check for matches in &#39;participants$field&#39; and assign corresponding categories
-if (any(agrep(paste(economy_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
-  participants$category &lt;- &quot;Economy&quot;
-} else if (any(agrep(paste(art_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
-  participants$category &lt;- &quot;Art&quot;
-} else if (any(agrep(paste(science_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
-  participants$category &lt;- &quot;Science&quot;
-} else if (any(agrep(paste(business_keywords, collapse = &quot;|&quot;), participants$field, ignore.case = TRUE) &gt; 0)) {
-  participants$category &lt;- &quot;Business&quot;
+# Custom function for matching keywords
+categorize_field &lt;- function(field) {
+  if (any(grepl(paste(economy_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Economy&quot;)
+  } else if (any(grepl(paste(art_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Arts and Entertainment&quot;)
+  } else if (any(grepl(paste(international_relations_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;International Relations&quot;)
+  } else if (any(grepl(paste(engineering_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Engineering&quot;)
+  } else if (any(grepl(paste(science_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Science&quot;)
+  } else if (any(grepl(paste(business_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Business&quot;)
+  } else if (any(grepl(paste(education_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Education&quot;)
+  } else if (any(grepl(paste(social_science_keyword, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Social Science&quot;)
+  } else if (any(grepl(paste(humanities_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Humanities&quot;)
+  } else if (any(grepl(paste(environmental_science_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Environmental Science&quot;)
+  } else if (any(grepl(paste(public_relations_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Public Relations&quot;)
+  } else if (any(grepl(paste(literary_studies_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Literary Studies&quot;)
+  } else if (any(grepl(paste(law_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Law&quot;)
+  } else if (any(grepl(paste(health_sciences_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Health Sciences&quot;)
+  } else if (any(grepl(paste(student_keywords, collapse = &quot;|&quot;), field, ignore.case = TRUE))) {
+    return(&quot;Student&quot;)
+  } else {
+    return(&quot;Ostalo&quot;)  # Retain the original category if no match
+  }
 }
-# If no match, retain the original category</code></pre>
+
+# Apply the categorization function
+participants$category &lt;- sapply(participants$field, categorize_field)</code></pre>
 <pre class="r"><code>table(participants$category)</code></pre>
 <pre><code>## 
-## Business 
-##      540</code></pre>
+##  Arts and Entertainment                Business                 Economy 
+##                      21                     108                      10 
+##               Education             Engineering   Environmental Science 
+##                      45                      47                       7 
+##         Health Sciences              Humanities International Relations 
+##                      11                       9                      39 
+##                     Law        Literary Studies                  Ostalo 
+##                      47                      17                       2 
+##        Public Relations                 Science          Social Science 
+##                      11                      87                      74 
+##                 Student 
+##                       5</code></pre>
 <pre class="r"><code>length(unique(participants$category))</code></pre>
-<pre><code>## [1] 1</code></pre>
-<pre class="r"><code>length(unique(participants$field))</code></pre>
-<pre><code>## [1] 212</code></pre>
+<pre><code>## [1] 16</code></pre>
+<p>Stvorili smo kategorije po kojima smo grupirali zanimanja sudionika.
+Nakon grupiranja uvidjeli smo da postoje sudionici koji su još u procesu
+obrazovavanja. Također postoje i podaci koji nisu iskoristivi jer ne
+daju zanimanje sudionika. Te podatke smo očistili i neće se koristit u
+testovima.</p>
+<pre class="r"><code>participants &lt;- participants[!(participants$category %in% c(&quot;Student&quot;, &quot;Ostalo&quot;)),]</code></pre>
+<pre class="r"><code>table(participants$category)</code></pre>
+<pre><code>## 
+##  Arts and Entertainment                Business                 Economy 
+##                      21                     108                      10 
+##               Education             Engineering   Environmental Science 
+##                      45                      47                       7 
+##         Health Sciences              Humanities International Relations 
+##                      11                       9                      39 
+##                     Law        Literary Studies        Public Relations 
+##                      47                      17                      11 
+##                 Science          Social Science 
+##                      87                      74</code></pre>
+<pre class="r"><code>length(unique(participants$category))</code></pre>
+<pre><code>## [1] 14</code></pre>
 <p>Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli
 predvidjeti hoće li speed date biti uspješniji?</p>
 </div>

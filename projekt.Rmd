@@ -176,7 +176,6 @@ summary(participants$gaming)
 Kategorizacija podataka
 Prikaz zanimanja:
 ```{r}
-head(table(participants$field))
 length(unique(participants$field))
 ```
 
@@ -193,36 +192,83 @@ Sada pokušavamo slična zanimanja grupirati zajedno.
 
 ```{r}
 # Replace 'participants' with your actual data frame name
-economy_keywords <- c("economy", "economic", "econs")
-art_keywords <- c("art", "creative")
-science_keywords <- c("science", "scientific", "chemistry", "biology", "biomedical", "biotechnology ")
-business_keywords <- c("business")
+economy_keywords <- c("economy", "economics", "econs", "applied maths")
+art_keywords <- c("art", "arts", "acting", "film", "theater", "theatre")
+engineering_keywords <- c("architecture", "engineering", "operations research", "engg.", "computer science") 
+social_science_keyword <- c("american studies", "history", "anthropology", "qmss", "psychology", "sociology", "social", "ma in quantitative methods")
+science_keywords <- c("science", "scientific", "medicine", "chemistry", "biology", "biomedical", "biotechnology", "biomedicine", "biotechnology", "biochemsistry", "epidemiology", "genetics", "physics", "marine geophysics", "mathematics", "math", "statistics", "stats")
+business_keywords <- c("business", "consulting", "finance", "fundraising", "marketing", "financial", "mba", "money", "finanace")
+education_keywords <- c("education", "teaching", "m.a.", "instructional ", "tesol")
+humanities_keywords <- c("classics", "philosophy", "religion")
+environmental_science_keywords <- c("climate", "ecology", "urban planning")
+public_relations_keywords <- c("communications", "journalism", "public administration", "relations", "public")
+literary_studies_keywords <- c("literature", "english", "french", "poetry", "writing", "polish")
+law_keywords <- c("law", "human rights")
+international_relations_keywords <- c("international", "intrernational affairs")
+health_sciences_keywords <-c("nutrition", "physiology", "nutritiron", "health", "medical informatics", "speech")
+student_keywords <- c("sipa", "soa", "seas", "undergrad - gs", "postbacc", "gsas")
 
-# Grupiranje po kategorijama (Grouping by categories)
-participants$category <- participants$field
-
-# Check for matches in 'participants$field' and assign corresponding categories
-if (any(agrep(paste(economy_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
-  participants$category <- "Economy"
-} else if (any(agrep(paste(art_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
-  participants$category <- "Art"
-} else if (any(agrep(paste(science_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
-  participants$category <- "Science"
-} else if (any(agrep(paste(business_keywords, collapse = "|"), participants$field, ignore.case = TRUE) > 0)) {
-  participants$category <- "Business"
+# Custom function for matching keywords
+categorize_field <- function(field) {
+  if (any(grepl(paste(economy_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Economy")
+  } else if (any(grepl(paste(art_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Arts and Entertainment")
+  } else if (any(grepl(paste(international_relations_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("International Relations")
+  } else if (any(grepl(paste(engineering_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Engineering")
+  } else if (any(grepl(paste(science_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Science")
+  } else if (any(grepl(paste(business_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Business")
+  } else if (any(grepl(paste(education_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Education")
+  } else if (any(grepl(paste(social_science_keyword, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Social Science")
+  } else if (any(grepl(paste(humanities_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Humanities")
+  } else if (any(grepl(paste(environmental_science_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Environmental Science")
+  } else if (any(grepl(paste(public_relations_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Public Relations")
+  } else if (any(grepl(paste(literary_studies_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Literary Studies")
+  } else if (any(grepl(paste(law_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Law")
+  } else if (any(grepl(paste(health_sciences_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Health Sciences")
+  } else if (any(grepl(paste(student_keywords, collapse = "|"), field, ignore.case = TRUE))) {
+    return("Student")
+  } else {
+    return("Ostalo")  # Retain the original category if no match
+  }
 }
-# If no match, retain the original category
 
+# Apply the categorization function
+participants$category <- sapply(participants$field, categorize_field)
 
 ```
 
 ```{r}
 table(participants$category)
 length(unique(participants$category))
-length(unique(participants$field))
+```
+Stvorili smo kategorije po kojima smo grupirali zanimanja sudionika. Nakon grupiranja uvidjeli smo da postoje sudionici koji su još u procesu obrazovavanja. Također postoje i podaci koji nisu iskoristivi jer ne daju zanimanje sudionika. Te podatke smo očistili i neće se koristit u testovima.
+
+```{r}
+participants <- participants[!(participants$category %in% c("Student", "Ostalo")),]
 ```
 
 
+```{r}
+table(participants$category)
+length(unique(participants$category))
+```
+
+Sada imamo 14 kategorija zanimanja sudionika. 
+
+TODO: sada idu grafovi za ta zanimanja
 
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
