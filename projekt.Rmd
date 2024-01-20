@@ -51,13 +51,12 @@ summary(dates)
 
 Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
 
-#TODO:tu ide prikaz podataka koji su relevantni, vizualizacija istih...histogram, scatter plot, box plot
 Promotrimo relevantne varijable koje ćemo kasnije koristiti u istraživačkim pitanjima.
 U vezi prvog pitanja bitni su nam inteligencija i fizički izgled partnera.
 
 ### Je li inteligencija partnera ispitanicima važnija od izgleda?
 
-Za ovo pitanje su nam bitni podaci o važnosti izgleda, odnosno inteligencije kod ispitanika.
+Za ovo pitanje su nam bitni podaci o važnosti izgleda, odnosno važnosti inteligencije kod ispitanika.Te podatke pronalazimo u participants pod varijablama naziva attractive_important tj. intelligence_important.
 Prvo ćemo izvaditi sve null vrijednosti iz podataka.
 ```{r}
 cleaned_intelligence <- na.omit(participants$intelligence_important)
@@ -66,17 +65,16 @@ cleaned_attractiveness <- na.omit(participants$attractive_important)
 
 Te ćemo te podatke prikazati uz pomoć histograma.
 
-```{r, fig.width = 14, fig.height=5}
+```{r,{r, fig.width = 14, fig.height=5}
 hist(na.omit(participants$intelligence_important), main='Značajnost inteligenciju kod partnera', xlab='Intelligence', ylab='Frequency')
+```
+Prema podacima iz grafa vidimo da je velika većina ispitanika, njih preko 250, ocjenila značajnost inteligencije između 15 i 20.
+
+```{r, fig.width = 14, fig.height=5}
 hist(na.omit(participants$attractive_important), main='Značajnost privlačnosti kod partnera', xlab='Attractiveness', ylab='Frequency')
 ```
-Možemo vidjeti da je kod večine ljudi inteligencija bitnija od izgleda kod partnera.
+Također kao i kod važnosti inteligencije, najčešča ocjena važnosti privlačnosti jest između 10 i 20. No ovdje se ističu i ocjene između 20 i 30. 
 
-Podatke koje ćemo također analizirati su ocjene partnerove inteligencije i izgleda nakon speed datinga.
-```{r,fig.width = 14, fig.height=5}
-hist(dates$intelligence_o,main='Ocjena inteligencije', xlab='Inteligence grade', ylab='Frequency')
-hist(dates$attractive_o,main='Ocjena izgleda', xlab='Attractivnes grade', ylab='Frequency')
-```
 Podatke o važnosti atraktivnosti i inteligencije ćemo usporediti u histogramu.
 ```{r}
 merged_data <- inner_join(participants, dates, by = c("id" = "participant_id"))
@@ -84,14 +82,19 @@ merged_data <- inner_join(participants, dates, by = c("id" = "participant_id"))
 b <- seq(0, 100, by = 5)
 
 h1 <- hist(na.omit(participants$intelligence_important), breaks = b, plot = FALSE)
-
-
 h2 <- hist(na.omit(participants$attractive_important), breaks = b, plot = FALSE)
 
+
+midpoints <- (head(b, -1) + tail(b, -1)) / 2
+
 data <- t(cbind(h1$counts, h2$counts))
-barplot(data, beside = TRUE, col = c("purple", "lightgreen"), xlab = "Importance", ylab = 'Frequency')
-legend("topright",c("intelligence","attractiveness"),fill = c( "purple", "lightgreen"))
+
+barplot(data, beside = TRUE, col = c("purple", "lightgreen"), xlab = "Importance", ylab = 'Frequency', names.arg = midpoints)
+legend("topright", c("intelligence", "attractiveness"), fill = c("purple", "lightgreen"))
 ```
+
+Možemo vidjeti da su najčešće vrijednosti obje važnosti 17.5. Dok je druga najčešča vrijednost važnosti intelgencije 12.5, a važnosti izgleda 22.5. 
+
 Normalnost podataka ćemo provjeriti uz pomoć qqplot-ova i testom o jednakosti varijanci.
 ```{r}
 qqnorm(na.omit(participants$attractive_important), pch = 1, frame = FALSE, main = "Važnost izgleda")
