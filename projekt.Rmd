@@ -221,10 +221,20 @@ Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zan
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
 ```{r}
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(ggplot2)
+
 logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = filetered_dates, family = "binomial")
 
 summary(logistic_model)
 ```
+
+````{r}
+plot_model(logistic_model, vline.color = "red", transform = NULL, title="Vrijenost parametra za pojedinu značajku")
+````
+
 
 ```{r}
 models <- list()
@@ -247,9 +257,16 @@ for(col in columns_of_interest) {
 p_values <- data.frame(column = columns_of_interest, p_value = p_values)
 p_values
 ```
+````{r}
+barplot(-log10(p_values$p_value), names.arg = p_values$column, 
+        ylab = 'Parameters', xlab = '-log10(p-value)',
+        main = 'Significance of Logistic Regression Parameters',
+        col = 'steelblue', border = 'black', xlim = c(0, max(-log10(p_values$p_value)) + 1),
+        width = 20)
+# Add a significance threshold line (e.g., -log10(0.05))
+abline(v = -log10(0.05), col = 'red', lty = 2)
 
-
-
+````
 ## Zaključak
 
 zakljucak na kraju svega WOHOOO
