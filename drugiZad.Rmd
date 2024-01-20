@@ -2,7 +2,9 @@
 title: "Projekt Speed Dating"
 author: "Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa Markić"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -51,6 +53,7 @@ sum(is.na(df_field_gaming$field)) # nepostojeće vrijenosti za field
 length(unique(df_field_gaming$field)) # različite vrijednosti u field
 
 df_field_gaming$gaming[df_field_gaming$gaming > 10] <- 10
+df_field_gaming$gaming[df_field_gaming$gaming < 1] <- 1
 ```
 Za naše pitanje odnosa interesa za gaming i zanimanja sudionika relevantne su kategorijska varijabla zanimanja i numerička varijabla ocjene na intervalnoj skali. Iz tog razloga daljnjoj analizi pristupiti ćemo na dva različita načina: 
 
@@ -60,7 +63,7 @@ Za naše pitanje odnosa interesa za gaming i zanimanja sudionika relevantne su k
 2. način
   Provjera primjenom jednofaktorske ANOVE, metoda kojom testiramo sredine više populacija te joj je cilj odrediti jesu li razliku između grupa statistički značajne. 
 
-Iz ispisa ocjena za gaming zakljucujemo da ima 5 vrijednosti ocjena koje su veće od 10 te da nema nepostojećih vrijednosti. U procesu čišćenja podataka smo vrijednosti koje su veće od 10 zamijenili sa 10. Također nema nepostojećih vrijednosti u stupcu field te stoga možemo koristiti ovaj data frame u daljnjoj analizi. Za oba navedena načina potrebno je dodatno kategorizirati zanimanja sudionika.
+Iz ispisa ocjena za gaming zakljucujemo da ima 5 vrijednosti ocjena koje su veće od 10, 2 vrijednosti koje su manje od 1 te da nema nepostojećih vrijednosti. U procesu čišćenja podataka smo vrijednosti koje su veće od 10 zamijenili sa 10, a vrijednosti koje su manje od 1 zamijeniti sa 1. Također nema nepostojećih vrijednosti u stupcu field te stoga možemo koristiti ovaj data frame u daljnjoj analizi. Za oba navedena načina potrebno je dodatno kategorizirati zanimanja sudionika.
 
 ```{r}
 levels_field <- levels(factor(df_field_gaming$field))
@@ -103,7 +106,7 @@ df_field_gaming$field = sapply(df_field_gaming$field, categorize_field)
 ```
 
 ```{r}
-zadane_kategorije <- c("Business&Economics", "Medicine & Health Sciences", "Law & International Affairs", "STEM", "Medicine & Health Sciences", "Social Studies&Humanities")
+zadane_kategorije <- c("Business&Economics", "Law & International Affairs", "STEM", "Social Studies&Humanities")
 
 redovi_bez_zadanih_kategorija <- subset(df_field_gaming, !(field %in% zadane_kategorije))
 
@@ -111,7 +114,7 @@ head(redovi_bez_zadanih_kategorija)
 
 ```
 
-Pregledavanjem nesvrstanih zanimanja koja se ne mogu dodati u kategorije kako bi se zadržala nezavisnost, za neka smo zaključili da se mogu uključiti.Također postoje i podaci koji nisu iskoristivi jer ne daju zanimanje sudionika. Te podatke smo očistili i neće se koristit u testovima.
+Pregledavanjem nesvrstanih zanimanja koja se ne mogu dodati u kategorije kako bi se zadržala nezavisnost, za neka smo zaključili da se mogu uključiti.Također postoje i podaci koji nisu iskoristivi jer ne daju zanimanje sudionika. Sve navedene podatke smo očistili i neće se koristit u testovima.
 
 ```{r}
 if ("Climate-Earth and Environ. Science" %in% df_field_gaming$field) {
@@ -146,42 +149,59 @@ length(unique(df_field_gaming$field))
 dim(df_field_gaming)
 ```
 
-Nakon kategorizacije zanimanja sudionika imamo četiri kategorije zanimanja te u nastavku slijedu mjere centralne tendencije za navedena zanimanja te vizualizacija podataka, također i za gaming.
+Nakon kategorizacije zanimanja sudionika imamo četiri kategorije zanimanja: 
+  - Business&Economics,
+  - Law & International Affairs,
+  - Social Studies&Humanities,
+  - STEM 
+U nastavku slijede mjere centralne tendencije za navedena zanimanja te vizualizacija podataka, također i za gaming.
 
-VIZUALIZCIJA
+# Vizualizacija i prikaz podataka
 
 ```{r}
-aggregate(df_field_gaming[names(df_field_gaming) != "field"], list(df_field_gaming$field), mean)
-aggregate(df_field_gaming[names(df_field_gaming) != "field"], list(df_field_gaming$field), median)
-```
+aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), mean)
+aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), median)
+aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), var)
 
+```
+Na temelju medijana, aritmetičke sredine i varijance ocjena za gaming grupiranih po prije određenim kategorijama na prvi pogled možemo primjetiti da je vrijednost aritmetičke sredine manja za jednu ocjenu, a vrijednost medijana za dvije ocjene od ostalih kategorija.
 
 ```{r}
 boxplot(df_field_gaming[df_field_gaming["field"]=="Business&Economics",]$gaming,
         main='Business&Economics - Gaming box-plot',
         ylab='Gaming grade',
-        xlab='Business&Economics')
+        xlab='Business&Economics',
+        col = "pink")
 
 boxplot(df_field_gaming[df_field_gaming["field"]=="Law & International Affairs",]$gaming,
         main='Law & International Affairs - Gaming box-plot',
         ylab='Gaming grade',
-        xlab='Law & International Affairs')
+        xlab='Law & International Affairs',
+        col = "pink")
 
 boxplot(df_field_gaming[df_field_gaming["field"]=="Social Studies&Humanities",]$gaming,
         main='Social Studies&Humanities - Gaming box-plot',
         ylab='Gaming grade',
-        xlab='Social Studies&Humanities')
+        xlab='Social Studies&Humanities',
+        col = "pink")
 
 boxplot(df_field_gaming[df_field_gaming["field"]=="STEM",]$gaming,
-        main='Sepal length box-plot',
+        main='STEM - Gaming box-plot',
         ylab='Gaming grade',
-        xlab='STEM')
+        xlab='STEM',
+        col = "pink")
 
 
-boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
+#boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
 
+boxplot(gaming ~ field, df_field_gaming,
+        main = "Boxplot ocjena interesa za gaming po kategorija",
+        xlab = "Kategorije",
+        ylab = "Ocjena interesa za gaming",
+        col = "pink"  # Boja boxplot-a
+)
 ```
-
+Prije primjećena manja vrijednost medijana vidljiva je i na prikazanom boxplotu ocjena interesa za gaming po kategorijama.
 
 
 ```{r}
@@ -197,30 +217,57 @@ hist(df_field_gaming$gaming,
 
 ```{r}
 
-b = seq(min(df_field_gaming$gaming) - 0.5,max(df_field_gaming$gaming) + 0.5, 1)
+barplot(
+  t(table(df_field_gaming$gaming, df_field_gaming$field)),
+  col = c('lightblue', 'purple', 'green', 'red'),
+  beside = TRUE,
+  legend.text = TRUE,
+  xlab = 'Ocjena za interes za gaming',
+  ylab = 'Frekvencija',
+  main = 'Barplot za kategorije'
+)
 
-h1 = hist(df_field_gaming[df_field_gaming["field"] == c("Business&Economics"),]$gaming,
-         breaks=b,
-         plot=FALSE)
-h2 = hist(df_field_gaming[df_field_gaming["field"] == c("Law & International Affairs"),]$gaming,
-         breaks=b,
-         plot=FALSE)
-h3 = hist(df_field_gaming[df_field_gaming["field"] == c("Social Studies&Humanities"),]$gaming,
-         breaks=b,
-         plot=FALSE)
-h4 = hist(df_field_gaming[df_field_gaming["field"] == c("STEM"),]$gaming,
-         breaks=b,
-         plot=FALSE)
+```
+```{r}
+table(df_field_gaming$gaming, df_field_gaming$field)
+max_length <- max(table(df_field_gaming$gaming, df_field_gaming$field))
+# Kreiranje linijskog plot-a
+plot(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "STEM"]), type = 'l', col = 'red',
+     xlim = c(min(df_field_gaming$gaming), max(df_field_gaming$gaming)),
+     ylim = c(0, 100),
+     xlab = 'Ocjena za interesa za gaming', ylab = 'Frekvencija', main = 'Linijski plot za kategorije')
 
-data <- t(cbind(h1$counts,h2$counts,h3$counts,h4$counts))
-barplot(data,beside=TRUE, col=c("lightblue", "purple", "lightgreen", "red"), xlab="Ocjena interesa za gaming", ylab='Frequency',)
-legend("topleft",c("Business&Economics","Law & International Affairs","Social Studies&Humanities", "STEM"),fill = c("lightblue", "purple", "lightgreen", "red"))
+# Dodavanje linijskih plot-ova za ostale kategorije
+lines(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "Business&Economics"]), col = 'lightblue')
+lines(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "Law & International Affairs"]), col = 'purple')
+lines(1:max_length, table(df_field_gaming$gaming[df_field_gaming$field == "Social Studies&Humanities"])[1:max_length], col = 'lightgreen')
+
+# Dodavanje legendi
+legend("topright",c("Business&Economics","Law & International Affairs", "Social Studies&Humanities","STEM"),fill = c("lightblue", "purple", "lightgreen", "red"))
 ```
 
-Ovo su prikazani grafovi osnovni ja mislim...mozda treba dodati jos nekaj
 
-Prvi način rješavanja tj testiranja kako je opisani
-kategorizacija ocjena, kontigencijska tablica i test nezavisnosti
+Koristeći različite vrste prikaza podataka za vrstu kojom raspolazemo, kategorijska varijabla područja zanimanja i numerička varijabla ocjene, prikazali smo raspodjelu podataka po kategroijama i ocjenama unutar svake kategorije te međusobno između kategorija.
+
+Nakon vizualizacije podataka nastavit ćemo sa prije spomenutim prvim načinom pristupa ovom pitanju odnosa interesa za gaming prema zanimanju sudionika. To podrazumijeva kategorizaciju ocjena za gaming kako bismo testirali nezavisnost između dvije tada kategorijske varijable - područje zanimanje, ocjena intersa za gaming. Kategorija ocjene varijabla je na ordinalnoj skali dok je kategorija područja zanimanja kategorijska varijabla nominalne skale - područja zanimanja ne mogu se rangirati dok se kategorije ocjena mogu.
+
+# Test nezavisnosti kategorijskih varijabli
+Test nezavisnosti, $\chi^2$ test, u programskom paketu R implementiran je u funkciji `chisq.test()` koja kao ulaz prima kontingencijsku tablicu podataka koje testiramo na nezavisnost. Također,test nezavisnosti koristi se kako bi se provjerilo postoji li statistički značajna veza između dvije kategorijske varijable, u našem slučaju kategorije ocjena i područja zanimanja. 
+Stoga, hipoteze za navedeni test su sljedeće:
+Nulta hipoteza - nema statistički značajne veze između zanimanja sudionika i interesa za gaming.
+$$ \begin{aligned}
+  H_0 & : \text{Područje zanimanja sudionika i interes za gaming su nezavisne varijable}.
+\end{aligned} $$
+Alternativna hipoteza - Postoji statistički značajna veza između zanimanja sudionika i interesa za gaming.
+$$ \begin{aligned}
+  H_1 & : \text{Područje animanja sudionika i interes za gaming nisu nezavisne varijable.}.
+\end{aligned} $$
+
+Ako p-vrijednost dobivena testom bude dovoljno mala - manja od 0.05, odbit ćemo nultu hipotezu i zaključiti da postoji statistički značajna veza.
+
+Test nezavisnosti u jeziku R prima kontigencijsku tablicu kao ulazt te treba imati na umu pretpostavku da je frekvencija očekivanog razreda veća ili jednaka 5.
+
+Prvi korak za navedeno ispitivanje je kategoriziranje ocjena interesa za gaming. To ćemo napraviti na sljedeći način, ocjene koje su cijeli brojevi od 1 do 10 ćemo podijeliti u tri nezavisne kategorije: Niska, Srednja i Visoka. Gdje će u grupi Niska biti ocjene od 1 do 2, u grupi Srednja ocjene od 3 do 6 i u grupi Visoka ocjene od 7 do 10.
 
 
 ```{r}
@@ -232,7 +279,7 @@ df_field_gaming <- df_field_gaming %>%
   ))
 
 # Ispisivanje rezultata
-print(df_field_gaming)
+head(df_field_gaming)
 ```
 
 ```{r}
@@ -247,9 +294,9 @@ barplot(kat_gaming_count,
 )
 ```
 
+Nakon kategorizacije ocjena interesa za gaming možemo nastaviti sa prikazom kontigencijske tablice, zatim dodavanjem marginalnih suma i provjerom pretpostavke testa nezavisnosti.
 
 Kontigencijska tablica
-
 
 ```{r}
 kontigencijska_tabl <- table(df_field_gaming$field, df_field_gaming$kat_gaming)
@@ -261,9 +308,7 @@ margine_tabl = addmargins(kontigencijska_tabl)
 print(margine_tabl)
 ```
 
-Test nezavisnosti $\chi^2$ test u programskom paketu R implementiran je u funkciji `chisq.test()` koja kao ulaz prima kontingencijsku tablicu podataka koje testiramo na nezavisnost. Ispitajmo nezavisnost pozicije igrača na terenu i njegove preferirane noge za udarce.
-
-Pretpostavka testa je da očekivana frekvencija pojedinog razreda mora biti veća ili jednaka 5 (`chisq.test()` pretpostavlja da je ovaj uvjet zadovoljen stoga je prije provođenja testa potrebno to provjeriti).
+Provjera pretpostavke testa nezavisnosti - očekivane frekvencije moraju biti veće ili jednake od 5.
 
 ```{r}
 for (col_names in colnames(margine_tabl)){
@@ -281,23 +326,36 @@ Sve očekivane frekvencije su veće od 5. Možemo nastaviti sa $\chi^2$ testom.
 chisq.test(kontigencijska_tabl,correct=F)
 ```
 
-Odbacujemo H0 u korist H1...treba se to napisat negde kaj je kaj
+P-vrijednost manje je od prije definirane vrijednosti 0.05, ona iznosti 0.002724 te iz tog razloga odbacijemo nultu hipotezu u korist alternativne. Postoji statistički značajna veza između zanimanja sudionika i interesa za gaming to jest područje zanimanja sudionika i njegov interes za gaming zavisne su varijable.
 
+# Provjera primjenom jednofaktorske ANOVE
 
+Sada ćemo nastaviti sa drugim pristupom ovom pitanju, primjenom jednofaktorske ANOVE gdje ne gledamo ocjene kao kategorijsku varijabu nego nuemričku.
 
-2. način
+ANOVA (engl. *ANalysis Of VAriance*) metoda je kojom testiramo sredive više populacija te pretpostavlja  da je ukupna varijabilnost u podatcima posljedica varijabilnosti podataka unutar svakog pojedine grupe (populacije) i varijabilnosti između različitih grupa. Varijabilnost unutar pojedinog uzorka je rezultat slučajnosti, a ako postoje razlike u sredinama populacija, one će biti odražene u varijabilnosti među grupama. Jedan od glavnih ciljeva analize varijance je ustanoviti jesu li upravo te razlike između grupa samo posljedica slučajnosti ili je statistički značajna.
 
-Tu treba ići cijelo objašnjenje o ANOVI
+U jednofaktorskom ANOVA modelu razmatra se utjecaj jednog faktora koji ima $k$ razina.
+Neka su:
+$$ \begin{aligned}
+  X_{11}, X_{12}, \ldots, X_{1n_1} & \sim N(\mu_1, \sigma^2) \\
+  X_{21}, X_{22}, \ldots, X_{2n_2} & \sim N(\mu_2, \sigma^2) \\
+  & \vdots\\
+  X_{k1}, X_{k2}, \ldots, X_{kn_k} & \sim N(\mu_k, \sigma^2)
+\end{aligned} $$
+nezavisni uzorci iz $k$ različitih populacija (populacije se razlikuju upravo po razini faktora od interesa). Jednofaktorski ANOVA model glasi:
+$$ X_{ij} = \mu_{i} + \epsilon_{ij}, $$
+gdje je $\mu_{i}$ sredina svake populacije $i = 1,..,k$. Analizom varijance testiramo:
+$$ \begin{aligned}
+  H_0 & : \mu_1 = \mu_2 = \ldots = \mu_k \\
+  H_1 & : \text{barem dvije sredine nisu iste}.
+\end{aligned} $$
 
 Kako bi krenuli s analizom ANOVE moramo ispitati njene pretpostavke, a to su:
   1.    nezavisnost pojedinih podataka u uzorcima
   2.    normalna razdioba podataka
   3.    homogenost varijanci među populacijama
   
-  Nezavisnost je okej jer smo tak dizajnirali sve..
-
-
-tu ide homogenost
+Nezavisnost podataka u populacijama smo osigurali kategorizacijom područja zanimanja iz tog razloga je taj uvjet ispunjen. Nastavljamo sa uvjetom homogenosti varijanic među populacijama. Ova pretpostavka je važna kako bi ANOVA bila pouzdana, a njezino kršenje može dovesti do netočnih rezultata. 
 Što se tiče homogenosti varijanci različitih populacija, potrebno je testirati:
 $$ \begin{aligned}
   H_0 & : \sigma_1^2 = \sigma_2^2 = \ldots = \sigma_k^2 \\
@@ -316,8 +374,10 @@ var((df_field_gaming$gaming[df_field_gaming$field=='Law & International Affairs'
 var((df_field_gaming$gaming[df_field_gaming$field=='Social Studies&Humanities']))
 var((df_field_gaming$gaming[df_field_gaming$field=='STEM']))
 ```
+Dobivena p-vrijednost Barlettovim testom, 0.9461, ukazuje na to da nema dovoljno statističkih dokaza da varijance nisu jednake. Stoga, zaključujemo i da nema dovoljno dokaza da su varijance različite među populacijama koje predstavljaju različita područja zanimanja sudionika. Ovo podržava homogenost varijanci - na temelju rezultata ne odbacujemo nultu hipotezu.
 
-ovo je normalnost
+Potrebno je još provjeriti pretpostavku normalnosti. Provjera normalnosti može se za svaku pojedinu grupu napraviti Kolmogorov-Smirnov testom ili Lillieforsovom inačicom Kolmogorov-Smirnov testa.
+
 ```{r test pretpostavki - normalnost}
 
 require(nortest)
@@ -334,15 +394,29 @@ hist(df_field_gaming$gaming[df_field_gaming$field=='Social Studies&Humanities'])
 hist(df_field_gaming$gaming[df_field_gaming$field=='STEM'])
 ```
 
+Testiranjem normalnosti zaključujemo da nije zadovoljen uvjet normalnosti jer je p-vrijednost testa manja od odabrane razine značajnosti, 0.05. Kao sljedeći korak pokušat ćemo transformirati podatke kako bismo ih približili normalnoj distribuciji - koristit više transformacijskih tehnika te odabrati najboljju. Ovdje je prikzana logaritamska transformacija. Nakon transformacije ćemo provesti test normalnosti.
 
-Jel moramo normalizirati podatke s logaritmiranjem...nekaj takvog sam videl..ako bude ovo funkcioniralo opce
-Ustari nebremo normalizirati jer nisu jednostavni normalni znaci da koristimo sljedece...
+```{r test pretpostavki - normalnost nakon transformacije}
+df_field_gaming$log_gaming <- log(df_field_gaming$gaming)
+
+require(nortest)
+lillie.test(df_field_gaming$log_gaming)
+
+lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Business&Economics'])
+lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Law & International Affairs'])
+lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Social Studies&Humanities'])
+lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='STEM'])
 
 
+hist(df_field_gaming$log_gaming[df_field_gaming$field=='Business&Economics'])
+hist(df_field_gaming$log_gaming[df_field_gaming$field=='Law & International Affairs'])
+hist(df_field_gaming$log_gaming[df_field_gaming$field=='Social Studies&Humanities'])
+hist(df_field_gaming$log_gaming[df_field_gaming$field=='STEM'])
+```
+Ekspermentiranjem sa transformacijskim tehnika nismo uspjeli transformirati ocjene interesa za gaming kako bismo potvrdili pretpostavku normalnosti podataka. Iz tog razloga ne možemo nastaviti sa provedbom ANOVA testa jer nisu ispunjene sve pretpostavke.
 
-### KRUSKAL-WALLISOV TEST 
-- neparametarska alternativa (jednofaktorskoj) analizi varijance - "NEPARAMETARSKA ANOVA"
-- koristi se kad nisu zadovoljene pretpostavke parametarske anove
+# KRUSKAL-WALLISOV TEST 
+Nastavit ćemo sa neparametarskom alternativom jednofaktorske analize varijance koja se koristi kada nisu zadovoljene pretpostavke parametarske anove kao u našem slučaju.
                     
 Hipotete Kruskal-Wallisovog testa su:
 $$ \begin{aligned}
@@ -357,13 +431,14 @@ require(nortest)
 kruskal.test(df_field_gaming$gaming ~ df_field_gaming$field, data = df_field_gaming)
 ```
 
-Testiranjem smo dobili da je p-vrijednost 0.001217 te zaključujemo da možemo odbaciti $H_0$(medijani populacija nisu jednaki)
+Testiranjem smo dobili da je p-vrijednost 0.001117 te zaključujemo da možemo odbaciti nultu hipotezu u korist alternative - barem dva medijana nisu jednaka.
+
 
 ```{r grafički prikaz sredina populacija}
 # Graficki prikaz podataka
 boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
 ```
 
-hm..ovo je vec i kraj mozda
-samo treba sad interpretirati i urediti lijepo
+Rezultat Kruskal-Wallisovog testa vidljiv je takođeri na prikazanom box plotu. U drugom načinu pristupa pitanju postoji li razlika za interes za gaming prema području zanimanja sudionika došli smo do zaključka da razlika postoji.
 
+Drugim riječima, postoji statistički značajna razlika između ocjena interesa za gaming prema području zanimanja sudionika.
