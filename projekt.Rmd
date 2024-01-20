@@ -2,13 +2,20 @@
 title: "Projekt Speed Dating"
 author: "Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa Markić"
 date: "`r Sys.Date()`"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(lmtest)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(ggplot2)
+
 
 ```
 
@@ -220,16 +227,84 @@ Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zan
 
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
-```{r}
-library(sjPlot)
-library(sjlabelled)
-library(sjmisc)
-library(ggplot2)
+Kako bismo vidjeli može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li spoj bio uspješan ili ne. Prvo idemo razraditi definiciju uspješnosti spoja. Spoj je usješan jedino ako je sudionik u spoju ocjenio cjelokupno iskustvo s 1, a nuespješan ako je ocjenjeno s 0. Definicija je nužno ovakva jer se može dogoditi situacija ako dvoje ljudi otudu na spoj, jednoj se osobi spoj svidio, a drugoj ne onda njihove ocjene mogu biti drugačije. Zbog toga smo odlučili na ovaj subjektivan pristup. Pošto je odluka za uspješnost spoja binarna, odlučili smo koristiti model logističke regresije. 
 
-logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = filetered_dates, family = "binomial")
+Model logističke regresije je statistički model koji se koristi za analizu odnosa između jedne binarne zavisne promenljive varijable i više nezavisnih promenljivih varijabli. Sam model je oblika:
+
+$$\begin{aligned}
+F(x'\beta) = \Lambda(x'\beta) = \frac{1}{1 + e^{-x'\beta}}
+\end{aligned}$$
+
+Cilj je predviđanje vjerojatnosti da će zavisna promenljiva varijabla imati vrijednost 1 (uspjeh) ili 0 (neuspjeh) na osnovu linearnih kombinacija nezavisnih promenljivih varijabli ugurane u sigmoidalne funkciju. Model logističke regresije ima funkciju vjerodstojnosti:
+
+$$\begin{aligned}
+L(\beta) = \prod_{i=1}^{N}(\Lambda(x_i'\beta))^{y_i}(1-\Lambda(x_i'\beta))^{1-y_i}
+\end{aligned}$$
+
+ili u log obliku: 
+
+$$\begin{aligned}
+l(\beta) = \sum_{i=1}^{N}y_i log(\Lambda(x_i'\beta))+ \sum_{i=1}^{N}(1-y_i)log(1-\Lambda(x_i'\beta))
+\end{aligned}$$
+
+Ovaj problem nema konkretno rješenje, ali može se riješiti numerički korištenjem Newton-Raphsonove metode. Logistička regresija omogućava interpretaciju utjecaja svake nezavisne vaijable primjenjive na log-odds vjerovatnosti, pružajući također mogućnost procjene vjerojatnosti klasifikacije.
+
+Kako bismo vidjeli snagu ovog modela odlučili smo primjeniti unakrsnu provjeru, koja uvodne podatke na train:test u omjeru 70:30. 
+````{r}
+set.seed(123)  
+
+train_indices <- sample(1:nrow(filtered_dates), 0.7 * nrow(filtered_dates))
+
+training_set <- filtered_dates[train_indices, ]
+
+testing_set <- filtered_dates[-train_indices, ]
+````
+
+
+
+```{r}
+
+logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = training_set, family = "binomial")
 
 summary(logistic_model)
 ```
+```{r}
+predictions <- predict(logistic_model, testing_set, type = "response")
+
+# Convert predicted probabilities to binary predictions (0 or 1)
+predicted_class <- ifelse(predictions > 0.5, 1, 0)
+
+# Assuming 'response_variable' is the actual response variable in your data
+actual_class <- testing_set$decision
+
+# Confusion matrix
+conf_matrix <- table(actual_class, predicted_class)
+
+# Calculate accuracy
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+
+# Calculate precision
+precision <- conf_matrix[2, 2] / sum(conf_matrix[, 2])
+
+# Calculate recall
+recall <- conf_matrix[2, 2] / sum(conf_matrix[2, ])
+
+# Calculate F1 score
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+# ROC curve and AUC-ROC
+library(pROC)
+roc_curve <- roc(actual_class, predictions)
+auc_roc <- auc(roc_curve)
+
+# Print or use the calculated metrics as needed
+cat("Accuracy:", accuracy, "\n")
+cat("Precision:", precision, "\n")
+cat("Recall:", recall, "\n")
+cat("F1 Score:", f1_score, "\n")
+cat("AUC-ROC:", auc_roc, "\n")
+```
+
 
 ````{r}
 plot_model(logistic_model, vline.color = "red", transform = NULL, title="Vrijenost parametra za pojedinu značajku")
@@ -241,7 +316,7 @@ models <- list()
 
 for (col in columns_of_interest) {
   formula <- as.formula(paste("decision ~", paste(columns_of_interest[!columns_of_interest %in% col], collapse = "+")))
-  model <- glm(formula, data = filetered_dates, family = "binomial")
+  model <- glm(formula, data = training_set, family = "binomial")
   models[[col]] <- model
 }
 
@@ -269,7 +344,7 @@ p_values <- p_values %>% mutate(p_value = sapply(p_value, custom_format))
 p_values
 ```
 ````{r}
-logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = filetered_dates, family = "binomial")
+logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = training_set, family = "binomial")
 
 logistic_model_better
 
