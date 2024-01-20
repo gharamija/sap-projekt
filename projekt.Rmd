@@ -245,6 +245,14 @@ for (col in columns_of_interest) {
   models[[col]] <- model
 }
 
+custom_format <- function(x) {
+  if (abs(x) >= 0.001) {
+    return(sprintf("%.6f", x))
+  } else {
+    return(format(x, scientific = TRUE))
+  }
+}
+
 p_values <- numeric(length(columns_of_interest))
 i = 1
 for(col in columns_of_interest) {
@@ -255,16 +263,17 @@ for(col in columns_of_interest) {
 }
 
 p_values <- data.frame(column = columns_of_interest, p_value = p_values)
+
+p_values <- p_values %>% mutate(p_value = sapply(p_value, custom_format))
+
 p_values
 ```
 ````{r}
-barplot(-log10(p_values$p_value), names.arg = p_values$column, 
-        ylab = 'Parameters', xlab = '-log10(p-value)',
-        main = 'Significance of Logistic Regression Parameters',
-        col = 'steelblue', border = 'black', xlim = c(0, max(-log10(p_values$p_value)) + 1),
-        width = 20)
-# Add a significance threshold line (e.g., -log10(0.05))
-abline(v = -log10(0.05), col = 'red', lty = 2)
+logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = filetered_dates, family = "binomial")
+
+logistic_model_better
+
+lrtest(logistic_model, logistic_model_better)
 
 ````
 ## Zaključak
