@@ -41,9 +41,13 @@ dates = read.csv("speed_date_data.csv")
 head(participants)
 head(dates)
 ```
-Na temelju podataka vidimo da je set podataka za participante sadrži 40 stupaca dok za podatke o spojevima sadrži 19.  
+Tijekom analize možemo odlučiti izbaciti stupce koji nisu nužni jer ne pridonose zaključcima. Također, moguće je stvoriti pomoćne skupove podataka koji će biti korisni u određenim analizama, kao što je priprema podataka za linearnu regresiju.
 
-opis tablica i stupaca
+Dodatno, potrebno je razmotriti promjenu klasa nekih varijabli koje nisu precizno definirane u izvornim skupovima podataka. Primjerice, varijablu “spol” možemo pretvoriti u numeričku, a za varijablu “importance_same_race” koja trenutačno ima karakterističnu klasu (character), potrebno je razmotriti njenu pravu prirodu i prilagoditi klasifikaciju prema potrebi.
+
+U skupu podataka “dates” primjećujemo značajan broj nedostajućih podataka označenih s NA. Prije daljnje analize, potrebno je donijeti odluku o postupanju s tim podacima, kao što je zamjena nedostajućih vrijednosti odgovarajućim podacima, brisanje redaka ili primjena drugih metoda obrade nedostajućih podataka, ovisno o kontekstu analize i željenim rezultatima.
+
+
 
 ```{r}
 # Osnovna deskriptivna statistika:
@@ -52,19 +56,30 @@ summary(dates)
 
 ```
 
+```{r}
+cat("Dimenzija podataka o participantima: ", dim(participants))
+cat("Dimenzija podataka o spojevima: ", dim(dates))
+```
+
+Na temelju dostupnih podataka saznajemo da skup podataka za sudionike sadrži podatke o 540 sudionika te 40 stupaca, dok skup podataka o spojevima sadrži podatke o 8086 spojeva i ima 19 stupaca.
+
 Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
 
 Promotrimo relevantne varijable koje ćemo kasnije koristiti u istraživačkim pitanjima.
 U vezi prvog pitanja bitni su nam inteligencija i fizički izgled partnera.
 
-### Je li inteligencija partnera ispitanicima važnija od izgleda?
 
-Za ovo pitanje su nam bitni podaci o važnosti izgleda, odnosno važnosti inteligencije kod ispitanika.Te podatke pronalazimo u participants pod varijablama naziva attractive_important tj. intelligence_important. Prvo ćemo predstaviti mjere centralne tendencije za navedene podatke te ćemo ih vizualizirati. Osim toga, podatke ćemo gledati za cijeli skup podataka, ali također ćemo podijeliti cijeli skup na dva dijela, muškarce i žene te ćemo ovom pitanju pristupiti iz više kuteva: 
+
+## 1. Je li inteligencija partnera ispitanicima važnija od izgleda?
+
+Za rješavanje ovog pitanja ključni su nam podaci o važnosti izgleda i inteligencije među ispitanicima. Ovi podaci nalaze se u okviru varijabli "attractive_important" i "intelligence_important" unutar skupa podataka "participants".
+
+Prvo ćemo predstaviti mjere centralne tendencije za navedene podatke te ćemo ih vizualizirati. Osim toga, podatke ćemo gledati za cijeli skup podataka, ali također ćemo podijeliti cijeli skup na dva dijela, muškarce i žene te ćemo ovom pitanju pristupiti iz više kuteva: 
 je li inteligencija partnera ispitanicima važnija od izgleda,
 je li inteligencija partnera muškarcima važnija od izgleda u ovom skupu podataka te
 je li inteligencija partnera ženama važnija od izgleda u ovom skupu podataka.
 
-Podatke ćemo prvo očistiti, vizualizirati te ćemo nastaviti sa potrebnim testovima. Naposljetku, ćemo rezultate analizirati, usporediti te donijeti zaključke.
+Podatke ćemo prvo očistiti, vizualizirati te ćemo nastaviti s potrebnim testovima. Naposljetku, ćemo rezultate analizirati, usporediti te donijeti zaključke.
 
 Prvo ćemo izvaditi sve null vrijednosti iz podataka.
 ```{r}
@@ -81,7 +96,7 @@ sum(participants$gender == "female")
 
 ```
 
-Na temelju ispisa ovih podataka možemo vidjeti da su medijani za vrijednosti važnosti inteligencije i izgleda isti kada se gleda skup svih sudionika. Aritmetička sredina vrijednosti kod svih sudionika je veća za važnost izgleda nego za inteligenciju, redom, 22.52 i 20.17. Cijeli skup podataka podijelili smo u dva disjunktna podskupa, skup muškaraca veličine je 273, a žena 263. U podskupu muškaraca primjetna je veća razlika u vrijednostima medijana i aritmetičke sredine u korist važnosti izgleda za razliku od važnosti inteligencije. U podskupu žena je situacija suprotna, vrijednosti medijana i aritmetičke sredine ocjena veće su u korist važnosti inteligencije za razliku od važnosti izgleda. Ove podatke ćemo vizalizirati, a nakon toga i testirati jesu li razlike statistički značajne.
+Na temelju ispisa ovih podataka možemo vidjeti da su medijani za vrijednosti važnosti inteligencije i izgleda isti kada se gleda skup svih sudionika. Aritmetička sredina vrijednosti kod svih sudionika je veća za važnost izgleda nego za inteligenciju, redom, 22.52 i 20.17. Cijeli skup podataka podijelili smo u dva disjunktna podskupa, skup muškaraca veličine je 273, a žena 263. U podskupu muškaraca primjetna je veća razlika u vrijednostima medijana i aritmetičke sredine u korist važnosti izgleda za razliku od važnosti inteligencije. U podskupu žena je situacija suprotna, vrijednosti medijana i aritmetičke sredine ocjena veće su u korist važnosti inteligencije za razliku od važnosti izgleda. Ove podatke ćemo vizualizirati, a nakon toga i testirati jesu li razlike statistički značajne.
 
 Prvo ćemo vizualizirati pomoću box-plota značajnost inteligencije i izgleda na tri načina, za sve sudionike, muškarce pa žene.
 
@@ -154,19 +169,32 @@ par(mfrow = c(1, 1))
 
 Slična promatranja koja su i prije spomenuta mogu se izlučiti i iz ovih prikaza. Sada ćemo te podataka prikazati i uz pomoć histograma. Prvo za inteligenciju zatim za izgled.
 
+Prije nego te podatke prikažemo uz pomoć histograma pogledat ćemo u kojem rasponu su ocjene važnosti inteligencije.
+
+```{r}
+summary(participants$intelligence_important)
+```
+Vidimo da je minimalna ocjena 0, a maksimalna 50.
+
 ```{r}
 hist(df_cleaned_first$intelligence_important, main='Značajnost inteligenciju kod partnera', xlab='Intelligence', ylab='Frequency')
 hist(df_cleaned_first_male$intelligence_important, main='Značajnost inteligenciju kod partnera - Muškarci', xlab='Intelligence', ylab='Frequency')
 hist(df_cleaned_first_female$intelligence_important, main='Značajnost inteligenciju kod partnera - Žene', xlab='Intelligence', ylab='Frequency')
 ```
-Prema podacima iz grafa vidimo da je velika većina ispitanika, njih preko 250, ocjenila značajnost inteligencije između 15 i 20.
+Iz grafa je vidljivo da većina ispitanika, njih preko 250, ocjenjuje značajnost inteligencije u rasponu između 15 i 20.
+
+Sada ćemo pogledati ocjene značajnosti privlačnosti kod partnera. 
+```{r}
+summary(participants$attractive_important)
+```
+Vidimo da su ocjene u rasponu od 0 do 100.
 
 ```{r}
 hist(df_cleaned_first$attractive_important, main='Značajnost privlačnosti kod partnera', xlab='Attractiveness', ylab='Frequency')
 hist(df_cleaned_first_male$attractive_important, main='Značajnost privlačnosti kod partnera - Muškarci', xlab='Attractiveness', ylab='Frequency')
 hist(df_cleaned_first_female$attractive_important, main='Značajnost privlačnosti kod partnera - Žene', xlab='Attractiveness', ylab='Frequency')
 ```
-Također kao i kod važnosti inteligencije, najčešča ocjena važnosti privlačnosti jest između 10 i 20. No ovdje se ističu i ocjene između 20 i 30. 
+Slično kao i kod važnosti inteligencije, najčešća ocjena važnosti privlačnosti je između 10 i 20.
 
 Podatke o važnosti atraktivnosti i inteligencije ćemo usporediti u histogramu.
 ```{r}
@@ -186,9 +214,9 @@ legend("topright", c("intelligence", "attractiveness"), fill = c("purple", "ligh
 ```
 
 
-Možemo vidjeti da su najčešće vrijednosti obje važnosti 17.5. Dok je druga najčešča vrijednost važnosti intelgencije 12.5, a važnosti izgleda 22.5. 
+Iz podataka vidimo da su najčešće vrijednosti za obje važnosti 17.5. Druga najčešća vrijednost važnosti inteligencije je 12.5, dok je za važnost izgleda 22.5.
 
-Normalnost podataka ćemo provjeriti uz pomoć qqplot-ova i testom o jednakosti varijanci.
+Za provjeru normalnosti podataka planiramo koristiti qq-plotove i test o jednakosti varijanci.
 ```{r}
 qqnorm(df_cleaned_first$attractive_important, pch = 1, frame = FALSE, main = "Važnost izgleda - Svi")
 qqline(df_cleaned_first$attractive_important, col = "blue", lwd = "2")
@@ -286,19 +314,21 @@ t_test_result_female <- t.test(df_cleaned_first_female$intelligence_important,
 
 print(t_test_result_female)
 ```
+### Zaključak
+Uz male p-vrijednosti odbacujemo hipotezu H0 u korist H1 za sva tri testa - za sve sudionike, za muškarce i za žene. Na temelju ovih testova zaključujemo da kod muškaraca postoji veća razlika između važnosti izgleda i inteligencije u korist izgleda, te se na temelju testa zaključuje da muškim ispitanicima važnost inteligencije nije veća od važnosti izgleda. Kod žena u ovom skupu podataka situacija je suprotna, također nisu jednako važni inteligencija i izgled, ali u ovom slučaju prednost ima inteligencija partnera to jest drugim riječima, izgled ima manju ulogu. 
 
-Uz male p-vrijednosti odbacujemo hipotezu H0 u korist H1 za sva tri testa - za sve sudionike, za muškarce i za žene. Na temelju ovih testova zaključujemo da kod mušakaraca postoji veća razlika između važnosti izgleda i inteligencije u korist izgleda, te se na temelju testa zaključuje da muškim ispitanicima važnost inteligencije nije veća od važnosti izgleda. Kod žena u ovom skupu podataka situacija je suprotna, također nisu jednako važni inteligencija i izgled, ali u ovom slučaju prednost ima inteligencija partnera to jest drugim riječima, izgled ima manju ulogu. 
-
-Kod svih ispitanika zaključujemo da važnost inteligencije i izgleda kod odabira partnera nisu jednaki, izgled je važniji što smo pokazali i ovim testom. Paralelnim prikazom međuodnosa inteligencije i izgleda kod muškaraca i žena prikazali smo da u slučaju drukčijeg skupa podataka u kojem je veći disbalans između broja muškaraca i žena (ovdje, 273 i 267) mogli doći do drukčijeg zaključka za sve ispitanike-
+Kod svih ispitanika zaključujemo da važnost inteligencije i izgleda kod odabira partnera nisu jednaki, izgled je važniji što smo pokazali i ovim testom. Paralelnim prikazom međuodnosa inteligencije i izgleda kod muškaraca i žena prikazali smo da u slučaju drukčijeg skupa podataka u kojem je veći disbalans između broja muškaraca i žena (ovdje, 273 i 267) mogli doći do drukčijeg zaključka za sve ispitanike.
 
 
-## Drugo istraživacko pitanje glasi : Postoji li razlika u interesu za gaming prema zanimanju sudionika?
+## 2. Postoji li razlika u interesu za gaming prema zanimanju sudionika?
 
-Za ovo pitanje bitni su nam podaci o zanimanju sudionika te o interesu koji imaju za gaming.Potrebno je podatke očistiti prije njihovog korištenja.
-Podatke o interesu za gaming ćemo očistiti na način da se nepostojeći podaci o ocjeni zamjene sa medijanom svih ocjena svih sudionika.
-Podatke o zanimanju sudionika očistit ćemo tako što čemo ukloniti podatke o sudionicima za koje je zanimanje ne definirano.
+Za rješavanje ovog pitanja, ključni su nam podaci o zanimanju sudionika i njihovom interesu za igranje video igara. Prije nego što krenemo s analizom, potrebno je očistiti podatke kako bismo ih pripremili za daljnje korištenje.
 
-Prije opisanog procesa ćemo u novi data frame staviti stupce iz tablice participants koje ćemo koristiti. U ovom slučaju to su gaming i field stupci
+Prvo, fokusirat ćemo se na podatke o interesu za video igre. Nepostojeće ocjene zamijenit ćemo s medijanom svih ocjena svih sudionika, osiguravajući time konzistentnost i relevantnost podataka.
+
+Zatim, obratit ćemo pažnju na podatke o zanimanju sudionika. Uklonit ćemo sudionike čije zanimanje nije definirano.
+
+Kako bismo pojednostavnili ovaj proces, prethodno ćemo kreirati novi skup podataka koji će sadržavati samo relevantne stupce iz tablice "participants" - gaming i field stupce.
 ```{r}
 df_field_gaming <- participants[, c("gaming", "field")]
 names(df_field_gaming) # ispisuje imena stupaca
@@ -306,7 +336,7 @@ dim(df_field_gaming) # dimenzije novo stvorenog data frame-a participants_data
 class(df_field_gaming$gaming)
 class(df_field_gaming$field)
 ```
-Iz ovog ispisa vidljivo je da se tablica sastoji od 540 redaka, drugim riječima, imamo podatke o 540 sudionika te o njihovom interesu za gaming i njihovom zanimanju. Također vidimo da podaci u stupcu gaming pripadaju klasi "integer", a u stupcu field klasi "character" iz čega zaključujemo da su ocjene za interes za gaming cijeli brojevi na intervalnoj skali, a zanimanje sudionika je kategorijska varijabla.
+Ovaj ispis otkriva da naš skup podataka sadrži 540 sudionika s informacijama o njihovom interesu za igranje video igara i zanimanju. Proučavamo dva ključna stupca: "gaming" koji sadrži cijele brojeve na intervalnoj skali te "field" koji predstavlja kategorijsku varijablu s informacijama o zanimanju sudionika. Ova analiza pomaže nam razumjeti prirodu podataka prije daljnje obrade i analize.
 
 ```{r}
 summary(df_field_gaming$gaming)
@@ -318,15 +348,17 @@ length(unique(df_field_gaming$field)) # različite vrijednosti u field
 df_field_gaming$gaming[df_field_gaming$gaming > 10] <- 10
 df_field_gaming$gaming[df_field_gaming$gaming < 1] <- 1
 ```
-Za naše pitanje odnosa interesa za gaming i zanimanja sudionika relevantne su kategorijska varijabla zanimanja i numerička varijabla ocjene na intervalnoj skali. Iz tog razloga daljnjoj analizi pristupiti ćemo na dva različita načina: 
+Za naše pitanje odnosa interesa za gaming i zanimanja sudionika relevantne su kategorijska varijabla zanimanja i numerička varijabla ocjene na intervalnoj skali. Iz tog razloga daljnjoj analizi pristupit ćemo na dva različita načina: 
 
 1. način 
-  Kategorizacija ocjena za gaming kako bismo mogli testirati nezavisnost između dvije kategorijske varijable. Test nezavisnosti u programskom jeziku R kao ulaz prima kontigencijsku tablicu te treba imati na umu da je pretpostavka testa da je očekivana frekvencija pojedinog razreda mora biti veća ili jednaka 5.
+  Kategorizacija ocjena za gaming kako bismo mogli testirati nezavisnost između dvije kategorijske varijable. Test nezavisnosti u programskom jeziku R kao ulaz prima kontigencijsku tablicu te treba imati na umu da je pretpostavka testa da očekivana frekvencija pojedinog razreda mora biti veća ili jednaka 5.
 
 2. način
-  Provjera primjenom jednofaktorske ANOVE, metoda kojom testiramo sredine više populacija te joj je cilj odrediti jesu li razliku između grupa statistički značajne. 
+  Provjera primjenom jednofaktorske ANOVE, metoda kojom testiramo sredine više populacija te joj je cilj odrediti jesu li razlike između grupa statistički značajne. 
 
-Iz ispisa ocjena za gaming zakljucujemo da ima 5 vrijednosti ocjena koje su veće od 10, 2 vrijednosti koje su manje od 1 te da nema nepostojećih vrijednosti. U procesu čišćenja podataka smo vrijednosti koje su veće od 10 zamijenili sa 10, a vrijednosti koje su manje od 1 zamijeniti sa 1. Također nema nepostojećih vrijednosti u stupcu field te stoga možemo koristiti ovaj data frame u daljnjoj analizi. Za oba navedena načina potrebno je dodatno kategorizirati zanimanja sudionika.
+Iz ispisa ocjena za gaming zaključujemo da ima 5 vrijednosti ocjena koje su veće od 10, 2 vrijednosti koje su manje od 1 te da nema nepostojećih vrijednosti. U procesu čišćenja podataka smo vrijednosti koje su veće od 10 zamijenili s 10, a vrijednosti koje su manje od 1 zamijeniti s 1. Također nema nepostojećih vrijednosti u stupcu field te stoga možemo koristiti ovaj data frame u daljnjoj analizi. 
+
+Za oba navedena načina potrebno je dodatno kategorizirati zanimanja sudionika.
 
 ```{r}
 levels_field <- levels(factor(df_field_gaming$field))
@@ -334,9 +366,9 @@ print(levels_field[1:20])
 length(unique(df_field_gaming$field))
 ```
 
-Ovdje smo ispisali samo dio različitih vrijednosti u stupcu field kojih ima 252. Kao što smo napomenuli, zanimanje sudionika je kategorijska varijabla i mnoge od tih vrijednosti imaju zajedničke karakteristike koje ih svrstavaju u istu kategoriju. Prije nastavka analize potrebno je zanimanja sudionika grupirati u manji broj kategorija. U procesu grupiranja sva srodna zanimanja ćemo staviti u istu kategoriju na način da kategorije budu nezavisne. 
+Ovdje smo ispisali samo dio različitih vrijednosti u stupcu field kojih ima 252. Kao što smo napomenuli, zanimanje sudionika je kategorijska varijabla i mnoge od tih vrijednosti imaju zajedničke karakteristike koje ih svrstavaju u istu kategoriju. Prije nastavka analize potrebno je zanimanja sudionika grupirati u manji broj kategorija. U procesu grupiranja sva srodna zanimanja ćemo staviti u istu kategoriju tako da kategorije budu nezavisne. 
 
-Postoje mnogi načini za svrstavanje zanimanja sudionika u ovom slučaju na različite podskupove. Cilj podjele na manji broj kategorija bio je dobiti nezavisne podskupove zanimanja sa zajedničkim karakteristikama kako bi kategorije bile relevantne za predmet našeg istraživanja - razlika u interesu za gaming prema zanimanju korisnika. Osim koherencije kategorija cilj je bio i smanjenje dimenzionalnosti uz, ukoliko je moguće, održavanje podjednake raspodjele sudionika po kategorijama. Ovim smjernicama stvarali smo kategorije srodnih zanimanja te smo metodom pokušaja i pogreške došli do sljedeće kategorizacije - Business&Economics, STEM, Social Studies&Humanities, Law&International Affairs.
+Postoje mnogi načini za svrstavanje zanimanja sudionika, u ovom slučaju na različite podskupove. Cilj podjele na manji broj kategorija bio je dobiti nezavisne podskupove zanimanja sa zajedničkim karakteristikama kako bi kategorije bile relevantne za predmet našeg istraživanja - razlika u interesu za gaming prema zanimanju korisnika. Osim koherencije kategorija cilj je bio i smanjenje dimenzionalnosti uz, ako je moguće, održavanje podjednake raspodjele sudionika po kategorijama. Ovim smjernicama stvarali smo kategorije srodnih zanimanja te smo metodom pokušaja i pogreške došli do sljedeće kategorizacije - Business&Economics, STEM, Social Studies&Humanities, Law&International Affairs.
 
 ```{r}
 bussines_economics_keywords <- c("economy", "economics", "econs", "finance", "finanace", "financial", "business", "consulting", "fundraising", "marketing", "mba", "money")
@@ -430,7 +462,7 @@ aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), var)
 
 ```
 
-Na temelju medijana, aritmetičke sredine i varijance ocjena za gaming grupiranih po prije određenim kategorijama na prvi pogled možemo primjetiti da je vrijednost aritmetičke sredine manja za jednu ocjenu, a vrijednost medijana za dvije ocjene od ostalih kategorija.
+Na temelju medijana, aritmetičke sredine i varijance ocjena za gaming grupiranih po prije određenim kategorijama na prvi pogled možemo primijetiti da je vrijednost aritmetičke sredine manja za jednu ocjenu, a vrijednost medijana za dvije ocjene od ostalih kategorija.
 
 ```{r}
 boxplot(df_field_gaming[df_field_gaming["field"]=="Business&Economics",]$gaming,
@@ -468,7 +500,7 @@ boxplot(gaming ~ field, df_field_gaming,
 )
 ```
 
-Prije primjećena manja vrijednost medijana vidljiva je i na prikazanom boxplotu ocjena interesa za gaming po kategorijama.
+Prije primijećena manja vrijednost medijana vidljiva je i na prikazanom boxplotu ocjena interesa za gaming po kategorijama.
 
 
 ```{r}
@@ -511,11 +543,11 @@ lines(1:max_length, table(df_field_gaming$gaming[df_field_gaming$field == "Socia
 legend("topright",c("Business&Economics","Law & International Affairs", "Social Studies&Humanities","STEM"),fill = c("lightblue", "purple", "lightgreen", "red"))
 ```
 
-Koristeći različite vrste prikaza podataka za vrstu kojom raspolazemo, kategorijska varijabla područja zanimanja i numerička varijabla ocjene, prikazali smo raspodjelu podataka po kategroijama i ocjenama unutar svake kategorije te međusobno između kategorija.
+Koristeći različite vrste prikaza podataka za vrstu kojom raspolažemo, kategorijska varijabla područja zanimanja i numerička varijabla ocjene, prikazali smo raspodjelu podataka po kategorijama i ocjenama unutar svake kategorije te međusobno između kategorija.
 
-Nakon vizualizacije podataka nastavit ćemo sa prije spomenutim prvim načinom pristupa ovom pitanju odnosa interesa za gaming prema zanimanju sudionika. To podrazumijeva kategorizaciju ocjena za gaming kako bismo testirali nezavisnost između dvije tada kategorijske varijable - područje zanimanje, ocjena intersa za gaming. Kategorija ocjene varijabla je na ordinalnoj skali dok je kategorija područja zanimanja kategorijska varijabla nominalne skale - područja zanimanja ne mogu se rangirati dok se kategorije ocjena mogu.
+Nakon vizualizacije podataka nastavit ćemo s prije spomenutim prvim načinom pristupa ovom pitanju odnosa interesa za gaming prema zanimanju sudionika. To podrazumijeva kategorizaciju ocjena za gaming kako bismo testirali nezavisnost između dvije tada kategorijske varijable - područje zanimanje, ocjena interesa za gaming. Kategorija ocjene varijabla je na ordinalnoj skali dok je kategorija područja zanimanja kategorijska varijabla nominalne skale - područja zanimanja ne mogu se rangirati dok se kategorije ocjena mogu.
 
-# Test nezavisnosti kategorijskih varijabli
+### Test nezavisnosti kategorijskih varijabli
 Test nezavisnosti, $\chi^2$ test, u programskom paketu R implementiran je u funkciji `chisq.test()` koja kao ulaz prima kontingencijsku tablicu podataka koje testiramo na nezavisnost. Također,test nezavisnosti koristi se kako bi se provjerilo postoji li statistički značajna veza između dvije kategorijske varijable, u našem slučaju kategorije ocjena i područja zanimanja. 
 Stoga, hipoteze za navedeni test su sljedeće:
 Nulta hipoteza - nema statistički značajne veze između zanimanja sudionika i interesa za gaming.
@@ -529,9 +561,9 @@ $$ \begin{aligned}
 
 Ako p-vrijednost dobivena testom bude dovoljno mala - manja od 0.05, odbit ćemo nultu hipotezu i zaključiti da postoji statistički značajna veza.
 
-Test nezavisnosti u jeziku R prima kontigencijsku tablicu kao ulazt te treba imati na umu pretpostavku da je frekvencija očekivanog razreda veća ili jednaka 5.
+Test nezavisnosti u jeziku R prima kontingencijsku tablicu kao ulaz te treba imati na umu pretpostavku da je frekvencija očekivanog razreda veća ili jednaka 5.
 
-Prvi korak za navedeno ispitivanje je kategoriziranje ocjena interesa za gaming. To ćemo napraviti na sljedeći način, ocjene koje su cijeli brojevi od 1 do 10 ćemo podijeliti u tri nezavisne kategorije: Niska, Srednja i Visoka. Gdje će u grupi Niska biti ocjene od 1 do 2, u grupi Srednja ocjene od 3 do 6 i u grupi Visoka ocjene od 7 do 10.
+Prvi korak za navedeno ispitivanje je kategoriziranje ocjena interesa za gaming. To ćemo napraviti na sljedeći način, ocjene koje su cijeli brojevi od 1 do 10 ćemo podijeliti u tri nezavisne kategorije: Niska, Srednja i Visoka. Gdje će u grupi "Niska" biti ocjene od 1 do 2, u grupi "Srednja ocjene" od 3 do 6 i u grupi "Visoka ocjene" od 7 do 10.
 
 
 ```{r}
@@ -558,9 +590,9 @@ barplot(kat_gaming_count,
 )
 ```
 
-Nakon kategorizacije ocjena interesa za gaming možemo nastaviti sa prikazom kontigencijske tablice, zatim dodavanjem marginalnih suma i provjerom pretpostavke testa nezavisnosti.
+Nakon kategorizacije ocjena interesa za gaming možemo nastaviti s prikazom kontingencijske tablice, zatim dodavanjem marginalnih suma i provjerom pretpostavke testa nezavisnosti.
 
-Kontigencijska tablica
+Kontingencijska tablica
 
 ```{r}
 kontigencijska_tabl <- table(df_field_gaming$field, df_field_gaming$kat_gaming)
@@ -572,7 +604,7 @@ margine_tabl = addmargins(kontigencijska_tabl)
 print(margine_tabl)
 ```
 
-Provjera pretpostavke testa nezavisnosti - očekivane frekvencije moraju biti veće ili jednake od 5.
+Provjera pretpostavke testa nezavisnosti - očekivane frekvencije moraju biti veće ili jednake 5.
 
 ```{r}
 for (col_names in colnames(margine_tabl)){
@@ -590,13 +622,13 @@ Sve očekivane frekvencije su veće od 5. Možemo nastaviti sa $\chi^2$ testom.
 chisq.test(kontigencijska_tabl,correct=F)
 ```
 
-P-vrijednost manje je od prije definirane vrijednosti 0.05, ona iznosti 0.002724 te iz tog razloga odbacijemo nultu hipotezu u korist alternativne. Postoji statistički značajna veza između zanimanja sudionika i interesa za gaming to jest područje zanimanja sudionika i njegov interes za gaming zavisne su varijable.
+P-vrijednost manje je od prije definirane vrijednosti 0.05, ona iznosi 0.002724 te iz tog razloga odbacujemo nultu hipotezu u korist alternativne. Postoji statistički značajna veza između zanimanja sudionika i interesa za gaming to jest područje zanimanja sudionika i njegov interes za gaming zavisne su varijable.
 
-# Provjera primjenom jednofaktorske ANOVE
+### Provjera primjenom jednofaktorske ANOVE
 
-Sada ćemo nastaviti sa drugim pristupom ovom pitanju, primjenom jednofaktorske ANOVE gdje ne gledamo ocjene kao kategorijsku varijabu nego nuemričku.
+Sada ćemo nastaviti s drugim pristupom ovom pitanju, primjenom jednofaktorske ANOVE gdje ne gledamo ocjene kao kategorijsku varijablu nego numeričku.
 
-ANOVA (engl. *ANalysis Of VAriance*) metoda je kojom testiramo sredive više populacija te pretpostavlja  da je ukupna varijabilnost u podatcima posljedica varijabilnosti podataka unutar svakog pojedine grupe (populacije) i varijabilnosti između različitih grupa. Varijabilnost unutar pojedinog uzorka je rezultat slučajnosti, a ako postoje razlike u sredinama populacija, one će biti odražene u varijabilnosti među grupama. Jedan od glavnih ciljeva analize varijance je ustanoviti jesu li upravo te razlike između grupa samo posljedica slučajnosti ili je statistički značajna.
+ANOVA (engl. *ANalysis Of VAriance*) metoda je kojom testiramo sredine više populacija, a koja pretpostavlja  da je ukupna varijabilnost u podatcima posljedica varijabilnosti podataka unutar svake pojedine grupe (populacije) i varijabilnosti između različitih grupa. Varijabilnost unutar pojedinog uzorka je rezultat slučajnosti, a ako postoje razlike u sredinama populacija, one će biti odražene u varijabilnosti među grupama. Jedan od glavnih ciljeva analize varijance je ustanoviti jesu li upravo te razlike između grupa samo posljedica slučajnosti ili su statistički značajne.
 
 U jednofaktorskom ANOVA modelu razmatra se utjecaj jednog faktora koji ima $k$ razina.
 Neka su:
@@ -619,7 +651,7 @@ Kako bi krenuli s analizom ANOVE moramo ispitati njene pretpostavke, a to su:
   2.    normalna razdioba podataka
   3.    homogenost varijanci među populacijama
   
-Nezavisnost podataka u populacijama smo osigurali kategorizacijom područja zanimanja iz tog razloga je taj uvjet ispunjen. Nastavljamo sa uvjetom homogenosti varijanic među populacijama. Ova pretpostavka je važna kako bi ANOVA bila pouzdana, a njezino kršenje može dovesti do netočnih rezultata. 
+Nezavisnost podataka u populacijama smo osigurali kategorizacijom područja zanimanja iz tog razloga je taj uvjet ispunjen. Nastavljamo s uvjetom homogenosti varijanci među populacijama. Ova pretpostavka je važna kako bi ANOVA bila pouzdana, a njezino kršenje može dovesti do netočnih rezultata. 
 Što se tiče homogenosti varijanci različitih populacija, potrebno je testirati:
 $$ \begin{aligned}
   H_0 & : \sigma_1^2 = \sigma_2^2 = \ldots = \sigma_k^2 \\
@@ -659,7 +691,7 @@ hist(df_field_gaming$gaming[df_field_gaming$field=='Social Studies&Humanities'])
 hist(df_field_gaming$gaming[df_field_gaming$field=='STEM'])
 ```
 
-Testiranjem normalnosti zaključujemo da nije zadovoljen uvjet normalnosti jer je p-vrijednost testa manja od odabrane razine značajnosti, 0.05. Kao sljedeći korak pokušat ćemo transformirati podatke kako bismo ih približili normalnoj distribuciji - koristit više transformacijskih tehnika te odabrati najboljju. Ovdje je prikzana logaritamska transformacija. Nakon transformacije ćemo provesti test normalnosti.
+Testiranjem normalnosti zaključujemo da nije zadovoljen uvjet normalnosti jer je p-vrijednost testa manja od odabrane razine značajnosti, 0.05. Kao sljedeći korak pokušat ćemo transformirati podatke kako bismo ih približili normalnoj distribuciji - koristit više transformacijskih tehnika te odabrati najbolju. Ovdje je prikazana logaritamska transformacija. Nakon transformacije ćemo provesti test normalnosti.
 
 ```{r test pretpostavki - normalnost nakon transformacije}
 df_field_gaming$log_gaming <- log(df_field_gaming$gaming)
@@ -679,10 +711,10 @@ hist(df_field_gaming$log_gaming[df_field_gaming$field=='Social Studies&Humanitie
 hist(df_field_gaming$log_gaming[df_field_gaming$field=='STEM'])
 ```
 
-Ekspermentiranjem sa transformacijskim tehnika nismo uspjeli transformirati ocjene interesa za gaming kako bismo potvrdili pretpostavku normalnosti podataka. Iz tog razloga ne možemo nastaviti sa provedbom ANOVA testa jer nisu ispunjene sve pretpostavke.
+Eksperimentiranjem s transformacijskim tehnika nismo uspjeli transformirati ocjene interesa za gaming kako bismo potvrdili pretpostavku normalnosti podataka. Iz tog razloga ne možemo nastaviti s provedbom ANOVA testa jer nisu ispunjene sve pretpostavke.
 
-# KRUSKAL-WALLISOV TEST 
-Nastavit ćemo sa neparametarskom alternativom jednofaktorske analize varijance koja se koristi kada nisu zadovoljene pretpostavke parametarske anove kao u našem slučaju.
+### KRUSKAL-WALLISOV TEST 
+Nastavit ćemo s neparametarskom alternativom jednofaktorske analize varijance koja se koristi kada nisu zadovoljene pretpostavke parametarske anove kao u našem slučaju.
                     
 Hipotete Kruskal-Wallisovog testa su:
 $$ \begin{aligned}
@@ -705,15 +737,14 @@ Testiranjem smo dobili da je p-vrijednost 0.001117 te zaključujemo da možemo o
 boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
 ```
 
-Rezultat Kruskal-Wallisovog testa vidljiv je takođeri na prikazanom box plotu. U drugom načinu pristupa pitanju postoji li razlika za interes za gaming prema području zanimanja sudionika došli smo do zaključka da razlika postoji.
+Rezultat Kruskal-Wallisovog testa vidljiv je također na prikazanom box plotu. U drugom načinu pristupa pitanju postoji li razlika za interes za gaming prema području zanimanja sudionika došli smo do zaključka da razlika postoji.
 
 Drugim riječima, postoji statistički značajna razlika između ocjena interesa za gaming prema području zanimanja sudionika.
 
-## Treće istraživacko pitanje glasi : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
+##3.Možemo li temeljem drugih varijabli predvidjeti hoće li se sudioniku svidjeti partner?
 
-Čišćenje dataset:
+Prije same analize podataka potrebno je očistiti skup podataka odnosno ukloniti sve nepostojeće vrijednosti.
 
-Nepostojeće vrijednosti:
 ```{r}
 # sum(is.na(dates$attractive_o))
 # sum(is.na(dates$sincere_o))
@@ -754,12 +785,12 @@ partially_filtered_dates[, columns_of_interest] <- lapply(partially_filtered_dat
   return(x)
 })
 
-filtered_dates <- partially_filtered_dates
-filtered_dates
+#filtered_dates <- partially_filtered_dates
+#filtered_dates
 
 ````
 
-Stršeće vrijednosti
+Definiramo stršeće vrijednosti:
 ```{r}
 boxplots <- lapply(columns_of_interest, function(column_name) {
   boxplot(filtered_dates[[column_name]], main = column_name)
@@ -772,15 +803,16 @@ filtered_dates$met[filtered_dates$met > 1] <- 1
 unique(filtered_dates$met)
 ```
 
-Kako bismo vidjeli može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li spoj bio uspješan ili ne. Prvo idemo razraditi definiciju uspješnosti spoja. Spoj je usješan jedino ako je sudionik u spoju ocjenio cjelokupno iskustvo s 1, a nuespješan ako je ocjenjeno s 0. Definicija je nužno ovakva jer se može dogoditi situacija ako dvoje ljudi otiđu na spoj, jednoj se osobi spoj svidio, a drugoj ne onda njihove ocjene mogu biti drugačije. Zbog toga smo odlučili na ovaj subjektivan pristup. Pošto je odluka za uspješnost spoja binarna, odlučili smo koristiti model logističke regresije. 
+Da bismo procijenili može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li se sudioniku partner svidio, prvo ćemo definirati što smatramo "sviđanjem partnera". U našoj analizi, smatrati će se da se sudioniku svidio partner ako sudionik svoje cjelokupno iskustvo ocijeni s 1, a neuspješnim ako je ocijenjeno s 0. Ova definicija uzima u obzir subjektivnost ocjena sudionika.
 
-Model logističke regresije je statistički model koji se koristi za analizu odnosa između jedne binarne zavisne promenljive varijable i više nezavisnih promenljivih varijabli. Sam model je oblika:
+Budući da je odluka o tome je li se sudioniku partner svidio binarna (1 za "svidio mu se partner", 0 za "nije mu se svidio partner"), odlučili smo primijeniti model logističke regresije. Logistička regresija je statistički model koji se koristi za analizu odnosa između binarne zavisne promjenljive i više nezavisnih promjenljivih. Oblik modela je sljedeći:
+
 
 $$\begin{aligned}
 F(x'\beta) = \Lambda(x'\beta) = \frac{1}{1 + e^{-x'\beta}}
 \end{aligned}$$
 
-Cilj je predviđanje vjerojatnosti da će zavisna promenljiva varijabla imati vrijednost 1 (uspjeh) ili 0 (neuspjeh) na osnovu linearnih kombinacija nezavisnih promenljivih varijabli ugurane u sigmoidalne funkciju. Model logističke regresije ima funkciju vjerodstojnosti:
+Cilj je predviđanje vjerojatnosti da će zavisna promjenljiva varijabla imati vrijednost 1 (uspjeh) ili 0 (neuspjeh) na osnovu linearnih kombinacija nezavisnih promjenljivih varijabli ugurane u sigmoidalnu funkciju. Model logističke regresije ima funkciju vjerodostojnosti:
 
 $$\begin{aligned}
 L(\beta) = \prod_{i=1}^{N}(\Lambda(x_i'\beta))^{y_i}(1-\Lambda(x_i'\beta))^{1-y_i}
@@ -792,9 +824,9 @@ $$\begin{aligned}
 l(\beta) = \sum_{i=1}^{N}y_i log(\Lambda(x_i'\beta))+ \sum_{i=1}^{N}(1-y_i)log(1-\Lambda(x_i'\beta))
 \end{aligned}$$
 
-Ovaj problem nema konkretno rješenje, ali može se riješiti ili itterativno metodom gradijentnog spusta ili numerički Newton-Raphsonovom metodom. Logistička regresija omogućava interpretaciju utjecaja svake nezavisne vaijable primjenjive na log-odds vjerovatnosti, pružajući također mogućnost procjene vjerojatnosti klasifikacije.
+Ovaj problem nema konkretno rješenje, ali može se riješiti ili iterativno metodom gradijentnog spusta ili numerički Newton-Raphsonovom metodom. Logistička regresija omogućava interpretaciju utjecaja svake nezavisne varijable primjenjive na log-odds vjerojatnosti, pružajući također mogućnost procjene vjerojatnosti klasifikacije.
 
-Kako bismo vidjeli snagu ovog modela odlučili smo primjeniti unakrsnu provjeru, koja uvodne podatke na trening_set:testing_set u omjeru 70:30:
+Kako bismo vidjeli snagu ovog modela odlučili smo primijeniti unakrsnu provjeru, koja uvodne podatke na trening_set:testing_set u omjeru 70:30:
 ````{r}
 set.seed(123)  
 
@@ -805,14 +837,14 @@ training_set <- filtered_dates[train_indices, ]
 testing_set <- filtered_dates[-train_indices, ]
 ````
 
-Kod za učenje i rezultati učenja us vidljivi ovdje:
+Kod za učenje i rezultati učenja su vidljivi ovdje:
 ```{r}
 
 logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = training_set, family = "binomial")
 
 summary(logistic_model)
 ```
-Kako bismo odredili preciznost modela, prvo smo odlučili implemetirati ROC krivulju. ROC(Receiver Operating Characteristic) je graf koji ilustrira sposobnost dijagnostičkog modela u binarnoj klasifikaciji na različitim pragovima odlučivanja. Prikazuje odnos između stvarno pozitivnih rezultata (osjetljivosti) i lažno pozitivnih rezultata (1 - specifičnost), pomažući vizualizaciji kompromisa između osjetljivosti i specifičnosti na različitim pragovima. AUC (površina ispod krivulje ROC) mjera je ukupne performanse modela. Što je AUC bliže 1, to je model bolji.
+Kako bismo odredili preciznost modela, prvo smo odlučili implementirati ROC krivulju. ROC(Receiver Operating Characteristic) je graf koji ilustrira sposobnost dijagnostičkog modela u binarnoj klasifikaciji na različitim pragovima odlučivanja. Prikazuje odnos između stvarno pozitivnih rezultata (osjetljivosti) i lažno pozitivnih rezultata (1 - specifičnost), pomažući vizualizaciji kompromisa između osjetljivosti i specifičnosti na različitim pragovima. AUC (površina ispod krivulje ROC) mjera je ukupne performanse modela. Što je AUC bliže 1, to je model bolji.
 
 Graf ROC je ovdje:
 ```{r}
@@ -841,7 +873,7 @@ auc_value <- auc(roc_curve)
 cat("AUC:", auc_value, "\n")
 ````
 
-Sljedeća performansa koju smo htejli pokazati je Matrica zabune. Matrica zabune je tablica koja prikazuje broj stvarno pozitivnih, stvarno negativnih, lažno pozitivnih i lažno negativnih klasifikacija u kontekstu evaluacije binarnog klasifikacijskog modela, pružajući uvid u performanse modela i vrste pogrešaka koje čini. Ova matrica često služi kao osnova za izračunavanje različitih evaluacijskih mjera, poput preciznosti, osjetljivosti i specifičnosti.
+Sljedeća performansa koju smo htjeli pokazati je matrica zabune. Matrica zabune je tablica koja prikazuje broj stvarno pozitivnih, stvarno negativnih, lažno pozitivnih i lažno negativnih klasifikacija u kontekstu evaluacije binarnog klasifikacijskog modela, pružajući uvid u performanse modela i vrste pogrešaka koje čini. Ova matrica često služi kao osnova za izračunavanje različitih evaluacijskih mjera, poput preciznosti, osjetljivosti i specifičnosti.
 
 Naša matrica zabune:
 ````{r}
@@ -866,7 +898,8 @@ pheatmap(
 )
 
 ````
-Retci matrice prikazuju istinte vrijednosti, dok stupci prikazuju predviđene vrijednosti za model. Polja na dijagonali prikazuju broj točno previđenih primjera, dok polja izvan dijagonale prikazuju broj krivo prediđenih primjera. Kao što se vidi iz našeg modela, ima mnogo točno predviđenih modela, ali i mnogo krivo predviđenih modela, koji će se isto vidjeti u kasnijim metrikama.
+
+Reci matrice prikazuju istinite vrijednosti, dok stupci prikazuju predviđene vrijednosti za model. Polja na dijagonali prikazuju broj točno previđenih primjera, dok polja izvan dijagonale prikazuju broj krivo predviđenih primjera. Kao što se vidi iz našeg modela, ima mnogo točno predviđenih modela, ali i mnogo krivo predviđenih modela, koji će se isto vidjeti u kasnijim metrikama.
 
 Još neke mjere preciznosti:
 
@@ -889,14 +922,14 @@ $$
 \frac{TP}{TP + FN}
 \end{aligned}
 $$
-F1: Koristan je kada želite jednu metriku koja uzima u obzir i lažno pozitivne i lažno negativne rezultate. Formula:
+F1: Koristan je kada želimo jednu metriku koja uzima u obzir i lažno pozitivne i lažno negativne rezultate. Formula:
 $$
 \begin{aligned}
 4) F1= 
 \frac{2*Precisnost*Osjeltjivost}{Preciznost+Osjetljivost}
 \end{aligned}
 $$
-gdje su TP(točno pozitivni), FP(lažno pozitivni), TN(točno negativni) i FN(lažno negativni). Vrijednsoti ovih metrika za naš model su prikazane ovdje:
+gdje su TP(točno pozitivni), FP(lažno pozitivni), TN(točno negativni) i FN(lažno negativni). Vrijednosti ovih metrika za naš model su prikazane ovdje:
 ```{r}
 # Calculate accuracy
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
@@ -921,24 +954,24 @@ cat("Recall:", recall, "\n")
 cat("F1 Score:", f1_score, "\n")
 #cat("AUC-ROC:", auc_roc, "\n")
 ```
-Vidimo da su rezultati u redu. Prciznost modela je veća od 75% i većina ostalih parametara je iznad 70%.
+Vidimo da su rezultati u redu. Preciznost modela je veća od 75% i većina ostalih parametara je iznad 70%.
 
 Pitanje kojim se nadovezujemo na prethodno: Koje od značajki utječu na model najviše, a koje najmanje?
 
-Gdje vrijednost pojedinog parametra možemo i vidjeti na slijedećem grafu:
+Gdje vrijednost pojedinog parametra možemo i vidjeti na sljedećem grafu:
 ````{r}
 plot_model(logistic_model, vline.color = "red", transform = NULL, title="Vrijenost parametra za pojedinu značajku")
 ````
-Jasno se vidi da parametri like i atrctive_partner najviše utječu na konačnu mogućnost da model predviđa. Ali mi bismo htjeli da vidimo kojeg regresora bismo potencijalno mogli isključiti iz modela, a kojeg ne a da ne utječemo previše na izlaz modela. Za to ćemo iskoristiti LR test.
+Jasno se vidi da parametri "like" i "atractive_partner" najviše utječu na konačnu mogućnost da model predviđa. Ali mi bismo htjeli vidjeti kojeg regresora bismo potencijalno mogli isključiti iz modela, a kojeg ne, a da a ne utječemo previše na izlaz modela. Za to ćemo iskoristiti LR test.
 
-LR test (Likelihood Ratio test) je statistički test koji se koristi u kontekstu procjene značajnosti razlika između dvaju modela koji su ugniježdeni jedan u drugi. Test se temelji na usporedbi logaritma vjerodostojnosti (likelihood) modela koji je potpuno specifičan (nula restrikcija) s logaritmom vjerodostojnosti modela koji ima neke restrikcije (npr., postavljanje određenih parametara na nulu). Statistička testna statistika LR testa slijedi distribuciju $\chi$-kvadrat, a p-vrijednost testa pomaže u odlučivanju o odbacivanju nulte hipoteze o tome da su modeli ekvivalentni. 
+LR test (Likelihood Ratio test) je statistički test koji se koristi u kontekstu procjene značajnosti razlika između dvaju modela koji su ugniježđeni jedan u drugi. Test se temelji na usporedbi logaritma vjerodostojnosti (likelihood) modela koji je potpuno specifičan (nula restrikcija) s logaritmom vjerodostojnosti modela koji ima neke restrikcije (npr. postavljanje određenih parametara na nulu). Statistička testna statistika LR testa slijedi distribuciju $\chi$-kvadrat, a p-vrijednost testa pomaže u odlučivanju o odbacivanju nulte hipoteze o tome da su modeli ekvivalentni. 
 
-Prvo što ćemo napraviti je hitpoteze za LR test:
+Prvo što ćemo napraviti je hipoteze za LR test:
 $$\begin{aligned}
 H_0: \beta_g = 0 \\
 H_1: \beta_g \neq 0
 \end{aligned}$$
-Sada ćemo ići po svim svim regresorima u originalnom modelu, istrenirati broj modela koji je jednak originalnom broju regresora, ali svaki od tih modela neće imati regresor koji želimo testirati. I vidjeti koilko je li neki regresor redundantan s nivoom značajnosti 0.05. Rezultati su vidljivi u donjoj tablici: 
+Sada ćemo ići po svim regresorima u originalnom modelu, istrenirati broj modela koji je jednak originalnom broju regresora, ali svaki od tih modela neće imati regresor koji želimo testirati. I vidjeti koliko je li neki regresor redundantan s nivoom značajnosti 0.05. Rezultati su vidljivi u donjoj tablici: 
 
 ```{r}
 models <- list()
@@ -973,11 +1006,10 @@ p_values <- p_values %>% mutate(p_value = sapply(p_value, custom_format))
 p_values
 ```
 
-Vidimo po rezultatima da su attractive_partner i like najznačajniji parametri, dok intelligance_partner i intelligance_o najneznačajniji za izlaz modela. Što je i očekivano po vrijednostima parametara u originalnom modelu.
+Vidimo po rezultatima da su "attractive_partner" i "like" najznačajniji parametri, dok "intelligance_partner" i "intelligance_o" najneznačajniji za izlaz modela. Što je i očekivano po vrijednostima parametara u originalnom modelu.
 
 
 Za konačni eksperiment u ovom radu, htjeli smo vidjeti je li moguće poboljšati izlaz modela ako izbacimo regresore koji su zadovoljili LR test. Konačni rezultati su ovdje:
-
 ````{r}
 logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = training_set, family = "binomial")
 
