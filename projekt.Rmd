@@ -66,8 +66,17 @@ cleaned_intelligence <- na.omit(participants$intelligence_important)
 cleaned_attractiveness <- na.omit(participants$attractive_important)
 ```
 
+```{r}
+cat("Prosječna ocjena važnosti inteligencije kod partnera iznosi",mean(participants$intelligence_important),'\n')
+```
 
-Prije nego te podatke prikažemo uz pomoć histograma pogledat ćemo u kojem rasponu su ocjene važnosti inteligencije.
+```{r}
+cat("Prosječna ocjena važnosti izgleda kod partnera iznosi",mean(participants$attractive_important),'\n')
+```
+
+Prema podacima srednja vrijednost važnosti inteligencije, manja je od važnosti izgleda kod ispitanika.
+
+Podatke ćemo prikazati uz pomoć histograma.
 
 ```{r}
 summary(participants$intelligence_important)
@@ -136,22 +145,24 @@ Varijanca važnosti izgleda:
 var_attractive <- var(cleaned_attractiveness)
 cat("Varijanca od attractive_important:", var_attractive, "\n")
 ```
+
 Varijanca važnosti inteligencije:
 ```{r}
 var_intelligence <- var(cleaned_intelligence)
 cat("Varijanca od intelligence_important:", var_intelligence, "\n")
 ```
+
 Te radimo F-test:
 ```{r}
 var.test(cleaned_attractiveness, cleaned_intelligence)
 ```
 Zaključujemo uz p-vrijednost od 2.2e-16 da su varijance različite. Odbacujemo H0 hipotezu u koristi H1 te ćemo koristiti T-test za dva uzorka uz nejednake varijance. 
 
-T-test za dva uzorka uz nepoznate i nejednake varijance
+Sada provodimo t-test za dva uzorka uz nepoznate i nejednake varijance.
 
 $$ \begin{aligned}
-H_0&: Inteligencija \quad je \quad važnija\quad od \quad izgleda \\
-H_1&: Inteligencija \quad nije \quad važnija \quad od \quad izgleda
+H_0&: \mu_1  ≥  \mu_2 \\
+H_1&: \mu_1 < \mu_2
 \end{aligned} $$
 ```{r}
 t_test_result <- t.test(cleaned_intelligence, 
@@ -162,18 +173,10 @@ print(t_test_result)
 ```
 Uz malu p-vrijednost od 0.000175 odbacujemo hipotezu H0 u korist H1.
 
-### Zaključak
-Na temelju provedenih analiza te testova zaključujemo da ispitanicima inteligencija partnera nije važnija od izgleda.
-
-## Inferencijalna analiza
+Možemo zaključiti da je ispitanicima inteligencija nije važnije od izgleda, te podaci upućuju da je odnos važnosti inteligencije i izgleda suprotan od postvaljenog istraživačkog pitanja.
 
 
 Drugo istraživacko pitanje glasi : Postoji li razlika u izbirljivosti prema zanimanju sudionika?
 
 Posljednje istraživačko pitanje : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
-
-
-## Zaključak
-
-zakljucak na kraju svega WOHOOO
