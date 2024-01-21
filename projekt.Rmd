@@ -3,10 +3,10 @@ title: "Projekt Speed Dating"
 author: "Fran Canjuga, Gašpar Haramija, Leon Hegedić, Josipa Markić"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    latex_engine: xelatex
+  pdf_document: default
   html_document: default
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -108,7 +108,7 @@ boxplot(cbind(df_cleaned_first_female$intelligence_important, df_cleaned_first_f
 Na predočenim dijagramima vidljive su prije spomenute razlike kod muškaraca i žena te jednakost medijana kod svih sudionika. Sljedeći dijagrami prikazuju svaki od varijabli za sve tri spomenute kategorije od jedanput. Prvo za značajnost inteligencije, zatim za izgled.
 
 
-```{r,{r, fig.width = 14, fig.height=5}
+```{r, fig.width = 14, fig.height=5}
 
 # za postavljanje 3 box plota jedan kraj drugoga
 par(mfrow = c(1, 3))
@@ -262,10 +262,9 @@ Zaključujemo uz p-vrijednosti koje su manje od predodređene razine značajnost
 
 T-test za dva uzorka uz nepoznate i nejednake varijance
 
-Jel okej hipoteza? nebi trebalo da su srednje vrijednosti jednake biti H0, a H1 da su razlicite?
 $$ \begin{aligned}
-H_0&: Inteligencija \quad je \quad vaznija\quad od \quad izgleda \\
-H_1&: Inteligencija \quad nije \quad važnija \quad od \quad izgleda
+H_0&: \mu_1 = \mu_2 \\
+H_1&: \mu_1 < \mu_2 \quad \text{,} \quad \mu_1 > \mu_2 \quad \text{,} \quad \mu_1 \neq \mu_2
 \end{aligned} $$
 
 ```{r}
@@ -291,8 +290,6 @@ print(t_test_result_female)
 Uz male p-vrijednosti odbacujemo hipotezu H0 u korist H1 za sva tri testa - za sve sudionike, za muškarce i za žene. Na temelju ovih testova zaključujemo da kod mušakaraca postoji veća razlika između važnosti izgleda i inteligencije u korist izgleda, te se na temelju testa zaključuje da muškim ispitanicima važnost inteligencije nije veća od važnosti izgleda. Kod žena u ovom skupu podataka situacija je suprotna, također nisu jednako važni inteligencija i izgled, ali u ovom slučaju prednost ima inteligencija partnera to jest drugim riječima, izgled ima manju ulogu. 
 
 Kod svih ispitanika zaključujemo da važnost inteligencije i izgleda kod odabira partnera nisu jednaki, izgled je važniji što smo pokazali i ovim testom. Paralelnim prikazom međuodnosa inteligencije i izgleda kod muškaraca i žena prikazali smo da u slučaju drukčijeg skupa podataka u kojem je veći disbalans između broja muškaraca i žena (ovdje, 273 i 267) mogli doći do drukčijeg zaključka za sve ispitanike-
-
-
 
 
 ## Drugo istraživacko pitanje glasi : Postoji li razlika u interesu za gaming prema zanimanju sudionika?
@@ -714,7 +711,7 @@ Drugim riječima, postoji statistički značajna razlika između ocjena interesa
 
 ## Treće istraživacko pitanje glasi : Možemo li temeljem drugih varijabli predvidjeti hoće li speed date biti uspješniji?
 
-Čišćenje skupa podataka dates koji se promatra u ovom istraživačkom pitanju:
+Čišćenje dataset:
 
 Nepostojeće vrijednosti:
 ```{r}
@@ -762,7 +759,6 @@ filtered_dates
 
 ````
 
-
 Stršeće vrijednosti
 ```{r}
 boxplots <- lapply(columns_of_interest, function(column_name) {
@@ -770,14 +766,13 @@ boxplots <- lapply(columns_of_interest, function(column_name) {
 })
 
 ```
-
 ```{r}
 filtered_dates$met[filtered_dates$met > 1] <- 1
 
 unique(filtered_dates$met)
 ```
 
-Kako bismo vidjeli može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li spoj bio uspješan ili ne. Prvo idemo razraditi definiciju uspješnosti spoja. Spoj je usješan jedino ako je sudionik u spoju ocjenio cjelokupno iskustvo s 1, a nuespješan ako je ocjenjeno s 0. Definicija je nužno ovakva jer se može dogoditi situacija ako dvoje ljudi otudu na spoj, jednoj se osobi spoj svidio, a drugoj ne onda njihove ocjene mogu biti drugačije. Zbog toga smo odlučili na ovaj subjektivan pristup. Pošto je odluka za uspješnost spoja binarna, odlučili smo koristiti model logističke regresije. 
+Kako bismo vidjeli može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li spoj bio uspješan ili ne. Prvo idemo razraditi definiciju uspješnosti spoja. Spoj je usješan jedino ako je sudionik u spoju ocjenio cjelokupno iskustvo s 1, a nuespješan ako je ocjenjeno s 0. Definicija je nužno ovakva jer se može dogoditi situacija ako dvoje ljudi otiđu na spoj, jednoj se osobi spoj svidio, a drugoj ne onda njihove ocjene mogu biti drugačije. Zbog toga smo odlučili na ovaj subjektivan pristup. Pošto je odluka za uspješnost spoja binarna, odlučili smo koristiti model logističke regresije. 
 
 Model logističke regresije je statistički model koji se koristi za analizu odnosa između jedne binarne zavisne promenljive varijable i više nezavisnih promenljivih varijabli. Sam model je oblika:
 
@@ -797,9 +792,9 @@ $$\begin{aligned}
 l(\beta) = \sum_{i=1}^{N}y_i log(\Lambda(x_i'\beta))+ \sum_{i=1}^{N}(1-y_i)log(1-\Lambda(x_i'\beta))
 \end{aligned}$$
 
-Ovaj problem nema konkretno rješenje, ali može se riješiti numerički korištenjem Newton-Raphsonove metode. Logistička regresija omogućava interpretaciju utjecaja svake nezavisne vaijable primjenjive na log-odds vjerovatnosti, pružajući također mogućnost procjene vjerojatnosti klasifikacije.
+Ovaj problem nema konkretno rješenje, ali može se riješiti ili itterativno metodom gradijentnog spusta ili numerički Newton-Raphsonovom metodom. Logistička regresija omogućava interpretaciju utjecaja svake nezavisne vaijable primjenjive na log-odds vjerovatnosti, pružajući također mogućnost procjene vjerojatnosti klasifikacije.
 
-Kako bismo vidjeli snagu ovog modela odlučili smo primjeniti unakrsnu provjeru, koja uvodne podatke na train:test u omjeru 70:30. 
+Kako bismo vidjeli snagu ovog modela odlučili smo primjeniti unakrsnu provjeru, koja uvodne podatke na trening_set:testing_set u omjeru 70:30:
 ````{r}
 set.seed(123)  
 
@@ -810,16 +805,20 @@ training_set <- filtered_dates[train_indices, ]
 testing_set <- filtered_dates[-train_indices, ]
 ````
 
-
-
+Kod za učenje i rezultati učenja us vidljivi ovdje:
 ```{r}
 
 logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = training_set, family = "binomial")
 
 summary(logistic_model)
 ```
+Kako bismo odredili preciznost modela, prvo smo odlučili implemetirati ROC krivulju. ROC(Receiver Operating Characteristic) je graf koji ilustrira sposobnost dijagnostičkog modela u binarnoj klasifikaciji na različitim pragovima odlučivanja. Prikazuje odnos između stvarno pozitivnih rezultata (osjetljivosti) i lažno pozitivnih rezultata (1 - specifičnost), pomažući vizualizaciji kompromisa između osjetljivosti i specifičnosti na različitim pragovima. AUC (površina ispod krivulje ROC) mjera je ukupne performanse modela. Što je AUC bliže 1, to je model bolji.
 
+Graf ROC je ovdje:
 ```{r}
+library(pROC)
+library(pheatmap)
+
 predictions <- predict(logistic_model, testing_set, type = "response")
 
 # Convert predicted probabilities to binary predictions (0 or 1)
@@ -831,6 +830,74 @@ actual_class <- testing_set$decision
 # Confusion matrix
 conf_matrix <- table(actual_class, predicted_class)
 
+roc_curve <- roc(actual_class, predicted_class)
+plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2, xlab = "Lažno Pozitivni", ylab="Istinito pozitivni")
+```
+
+S AUC vrijednosti ispod grafa:
+````{r}
+# Area under the ROC curve (AUC)
+auc_value <- auc(roc_curve)
+cat("AUC:", auc_value, "\n")
+````
+
+Sljedeća performansa koju smo htejli pokazati je Matrica zabune. Matrica zabune je tablica koja prikazuje broj stvarno pozitivnih, stvarno negativnih, lažno pozitivnih i lažno negativnih klasifikacija u kontekstu evaluacije binarnog klasifikacijskog modela, pružajući uvid u performanse modela i vrste pogrešaka koje čini. Ova matrica često služi kao osnova za izračunavanje različitih evaluacijskih mjera, poput preciznosti, osjetljivosti i specifičnosti.
+
+Naša matrica zabune:
+````{r}
+# Stylish Confusion Matrix using pheatmap
+pheatmap(
+  conf_matrix,
+  main = "Matrica zabune",
+  fontsize_row = 12,  # Adjust font size for row labels
+  fontsize_col = 12,  # Adjust font size for column labels
+  cellwidth = 100,     # Adjust cell width
+  cellheight = 100,    # Adjust cell height
+  cluster_cols = FALSE,
+  cluster_rows = FALSE,
+  display_numbers=TRUE,
+  color = colorRampPalette(c("blue", "steelblue", "white"))(10),  # Adjust color palette
+  show_rownames = TRUE,  # Show row names (actual labels)
+  show_colnames = TRUE,  # Show column names (predicted labels)
+  angle_col = 0,       # Rotate column names for better visibility
+  number_color = "black",  # Color of the text inside cells
+  number_format = "%.0f", # Format for the numbers (adjust as needed)
+  fontsize_number = 12    # Font size of the numbers inside cells
+)
+
+````
+Retci matrice prikazuju istinte vrijednosti, dok stupci prikazuju predviđene vrijednosti za model. Polja na dijagonali prikazuju broj točno previđenih primjera, dok polja izvan dijagonale prikazuju broj krivo prediđenih primjera. Kao što se vidi iz našeg modela, ima mnogo točno predviđenih modela, ali i mnogo krivo predviđenih modela, koji će se isto vidjeti u kasnijim metrikama.
+
+Još neke mjere preciznosti:
+
+Točnost: Glavna interpretacija koliko je dobar model. Formula: 
+$$
+\begin{aligned}
+1) Točnost (Accuracy) = \frac{TP + TN}{FP + FN + TP + TN}
+\end{aligned}
+$$
+Preciznost: Pokazatelj lažno pozitivnih rezulata. Ključna je metrika kada je pogreška lažne klasifikacija velika. Formula:
+$$
+\begin{aligned}
+2) Preciznost (Precision)= \frac{TP}{FP + TP}
+\end{aligned}
+$$
+Osjetljivost: važan kada su troškovi propuštanja pozitivnih slučajeva visoki. Cilj mu je minimizirati lažno negativne rezultate. Formula:
+$$
+\begin{aligned}
+3) Osjetljivost (Recall)= 
+\frac{TP}{TP + FN}
+\end{aligned}
+$$
+F1: Koristan je kada želite jednu metriku koja uzima u obzir i lažno pozitivne i lažno negativne rezultate. Formula:
+$$
+\begin{aligned}
+4) F1= 
+\frac{2*Precisnost*Osjeltjivost}{Preciznost+Osjetljivost}
+\end{aligned}
+$$
+gdje su TP(točno pozitivni), FP(lažno pozitivni), TN(točno negativni) i FN(lažno negativni). Vrijednsoti ovih metrika za naš model su prikazane ovdje:
+```{r}
 # Calculate accuracy
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 
@@ -844,23 +911,34 @@ recall <- conf_matrix[2, 2] / sum(conf_matrix[2, ])
 f1_score <- 2 * (precision * recall) / (precision + recall)
 
 # ROC curve and AUC-ROC
-#library(pROC)
+library(pROC)
 roc_curve <- roc(actual_class, predictions)
 auc_roc <- auc(roc_curve)
 
-# Print or use the calculated metrics as needed
 cat("Accuracy:", accuracy, "\n")
 cat("Precision:", precision, "\n")
 cat("Recall:", recall, "\n")
 cat("F1 Score:", f1_score, "\n")
-cat("AUC-ROC:", auc_roc, "\n")
+#cat("AUC-ROC:", auc_roc, "\n")
 ```
+Vidimo da su rezultati u redu. Prciznost modela je veća od 75% i većina ostalih parametara je iznad 70%.
 
+Pitanje kojim se nadovezujemo na prethodno: Koje od značajki utječu na model najviše, a koje najmanje?
 
+Gdje vrijednost pojedinog parametra možemo i vidjeti na slijedećem grafu:
 ````{r}
 plot_model(logistic_model, vline.color = "red", transform = NULL, title="Vrijenost parametra za pojedinu značajku")
 ````
+Jasno se vidi da parametri like i atrctive_partner najviše utječu na konačnu mogućnost da model predviđa. Ali mi bismo htjeli da vidimo kojeg regresora bismo potencijalno mogli isključiti iz modela, a kojeg ne a da ne utječemo previše na izlaz modela. Za to ćemo iskoristiti LR test.
 
+LR test (Likelihood Ratio test) je statistički test koji se koristi u kontekstu procjene značajnosti razlika između dvaju modela koji su ugniježdeni jedan u drugi. Test se temelji na usporedbi logaritma vjerodostojnosti (likelihood) modela koji je potpuno specifičan (nula restrikcija) s logaritmom vjerodostojnosti modela koji ima neke restrikcije (npr., postavljanje određenih parametara na nulu). Statistička testna statistika LR testa slijedi distribuciju $\chi$-kvadrat, a p-vrijednost testa pomaže u odlučivanju o odbacivanju nulte hipoteze o tome da su modeli ekvivalentni. 
+
+Prvo što ćemo napraviti je hitpoteze za LR test:
+$$\begin{aligned}
+H_0: \beta_g = 0 \\
+H_1: \beta_g \neq 0
+\end{aligned}$$
+Sada ćemo ići po svim svim regresorima u originalnom modelu, istrenirati broj modela koji je jednak originalnom broju regresora, ali svaki od tih modela neće imati regresor koji želimo testirati. I vidjeti koilko je li neki regresor redundantan s nivoom značajnosti 0.05. Rezultati su vidljivi u donjoj tablici: 
 
 ```{r}
 models <- list()
@@ -895,12 +973,47 @@ p_values <- p_values %>% mutate(p_value = sapply(p_value, custom_format))
 p_values
 ```
 
+Vidimo po rezultatima da su attractive_partner i like najznačajniji parametri, dok intelligance_partner i intelligance_o najneznačajniji za izlaz modela. Što je i očekivano po vrijednostima parametara u originalnom modelu.
+
+
+Za konačni eksperiment u ovom radu, htjeli smo vidjeti je li moguće poboljšati izlaz modela ako izbacimo regresore koji su zadovoljili LR test. Konačni rezultati su ovdje:
+
 ````{r}
 logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = training_set, family = "binomial")
 
 logistic_model_better
 
-lrtest(logistic_model, logistic_model_better)
+predictions <- predict(logistic_model_better, testing_set, type = "response")
 
+predicted_class <- ifelse(predictions > 0.5, 1, 0)
+
+# Assuming 'response_variable' is the actual response variable in your data
+actual_class <- testing_set$decision
+
+# Confusion matrix
+conf_matrix <- table(actual_class, predicted_class)
+
+pheatmap(
+  conf_matrix,
+  main = "Matrica zabune",
+  fontsize_row = 12,  # Adjust font size for row labels
+  fontsize_col = 12,  # Adjust font size for column labels
+  cellwidth = 100,     # Adjust cell width
+  cellheight = 100,    # Adjust cell height
+  cluster_cols = FALSE,
+  cluster_rows = FALSE,
+  display_numbers=TRUE,
+  color = colorRampPalette(c("blue", "steelblue", "white"))(10),  # Adjust color palette
+  show_rownames = TRUE,  # Show row names (actual labels)
+  show_colnames = TRUE,  # Show column names (predicted labels)
+  angle_col = 0,       # Rotate column names for better visibility
+  number_color = "black",  # Color of the text inside cells
+  number_format = "%.0f", # Format for the numbers (adjust as needed)
+  fontsize_number = 12    # Font size of the numbers inside cells
+)
+
+accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
+cat("Accuracy:", accuracy, "\n")
 ````
+Izbacivanjem smo uspjeli dobiti poboljšanje od 0.2%.
 
