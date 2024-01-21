@@ -29,7 +29,7 @@ Ciljevi ovog projekta su upoznavanje s dostupnim podacima o sudionicima i spojev
 2. Postoji li razlika u interesu za gaming prema zanimanju sudionika?
 3. Možemo li temeljem drugih varijabli predvidjeti hoće li se sudioniku svidjeti partner?
 
-Počet ćemo s analizom deskriptivne statistike kako bismo stekli osnovni uvid u varijable poput starosti, spola, zanimanja i ocjena partnera. Nakon toga, primijenit ćemo inferencijalnu analizu kako bismo istražili postavljene hipoteze, uključujući pitanja o važnosti inteligencije partnera u odnosu na izgled te razlike u interesu za gaming prema zanimanju sudionika.
+U svakom od navedenih pitanja pristupit ćemo posebno te ćemo počet s analizom deskriptivne statistike kako bismo stekli osnovni uvid u potrebne varijable poput spola, zanimanja i ocjena partnera. Nakon toga, primijenit ćemo inferencijalnu analizu kako bismo istražili postavljene hipoteze, uključujući pitanja o važnosti inteligencije partnera u odnosu na izgled te razlike u interesu za gaming prema zanimanju sudionika.
 
 Ovaj projekt ima značajnost iz perspektive studenata, poput nas samih, jer nam pruža priliku primijeniti stečeno znanje o statističkoj analizi podataka u stvarnom svijetu. Uvid u ovakav skup podataka može pomoći studentima u donošenju informiranih odluka u svakodnevnom životu, bilo da se radi o razumijevanju međuljudskih odnosa ili donošenju odluka temeljenih na vlastitim preferencijama.
 
@@ -38,21 +38,18 @@ Ovaj projekt ima značajnost iz perspektive studenata, poput nas samih, jer nam 
 ```{r}
 participants = read.csv("participant_data.csv")
 dates = read.csv("speed_date_data.csv")
-head(participants)
-head(dates)
 ```
-Tijekom analize možemo odlučiti izbaciti stupce koji nisu nužni jer ne pridonose zaključcima. Također, moguće je stvoriti pomoćne skupove podataka koji će biti korisni u određenim analizama, kao što je priprema podataka za linearnu regresiju.
 
-Dodatno, potrebno je razmotriti promjenu klasa nekih varijabli koje nisu precizno definirane u izvornim skupovima podataka. Primjerice, varijablu “spol” možemo pretvoriti u numeričku, a za varijablu “importance_same_race” koja trenutačno ima karakterističnu klasu (character), potrebno je razmotriti njenu pravu prirodu i prilagoditi klasifikaciju prema potrebi.
+Tijekom analize možemo odlučiti izbaciti stupce koji nisu nužni jer ne pridonose zaključcima. Također, moguće je stvoriti pomoćne skupove podataka koji će biti korisni u određenim analizama, kao što je priprema podataka za svaki od zadataka.
 
-U skupu podataka “dates” primjećujemo značajan broj nedostajućih podataka označenih s NA. Prije daljnje analize, potrebno je donijeti odluku o postupanju s tim podacima, kao što je zamjena nedostajućih vrijednosti odgovarajućim podacima, brisanje redaka ili primjena drugih metoda obrade nedostajućih podataka, ovisno o kontekstu analize i željenim rezultatima.
+Dodatno, potrebno je razmotriti klasau nekih varijabli koje nisu precizno definirane u izvornim skupovima podataka ukoliko će to biti potrebno za analizu zadatka. Primjerice, varijablu “spol” možemo pretvoriti u numeričku, a za varijablu “importance_same_race” koja trenutačno ima karakterističnu klasu (character), potrebno je razmotriti njenu pravu prirodu i prilagoditi klasifikaciju prema potrebi.
 
+U skupu podataka “dates” primjećujemo značajan broj nedostajućih podataka označenih s NA. Prije daljnje analize, potrebno je donijeti odluku o postupanju s tim podacima, kao što je zamjena nedostajućih vrijednosti odgovarajućim podacima, brisanje redaka ili primjena drugih metoda obrade nedostajućih podataka, ovisno o kontekstu analize zadatka.
 
-
-```{r}
+```{r, out.width = '5in'}
 # Osnovna deskriptivna statistika:
-summary(participants)
-summary(dates)
+#summary(participants)
+#summary(dates)
 
 ```
 
@@ -62,13 +59,6 @@ cat("Dimenzija podataka o spojevima: ", dim(dates))
 ```
 
 Na temelju dostupnih podataka saznajemo da skup podataka za sudionike sadrži podatke o 540 sudionika te 40 stupaca, dok skup podataka o spojevima sadrži podatke o 8086 spojeva i ima 19 stupaca.
-
-Na temelju predefiniranih hipoteza možemo zaključiti da svi stupci u podatcima nisu jednako relevantni. U slučaju analize je li inteligencija partnera važnija od fizičkog izgleda od najveće su važnosti podaci vezani uz inteligenciju i fizički izgled. Analogno za analizu povezanosti gaminga i zanimanja participanta najvažniji su podaci vezani uz gaming i samo područje zanimanja participanta.
-
-Promotrimo relevantne varijable koje ćemo kasnije koristiti u istraživačkim pitanjima.
-U vezi prvog pitanja bitni su nam inteligencija i fizički izgled partnera.
-
-
 
 ## 1. Je li inteligencija partnera ispitanicima važnija od izgleda?
 
@@ -82,12 +72,14 @@ je li inteligencija partnera ženama važnija od izgleda u ovom skupu podataka.
 Podatke ćemo prvo očistiti, vizualizirati te ćemo nastaviti s potrebnim testovima. Naposljetku, ćemo rezultate analizirati, usporediti te donijeti zaključke.
 
 Prvo ćemo izvaditi sve null vrijednosti iz podataka.
-```{r}
-sum(is.na(participants$intelligence_important)) # ukupno nepostojecih vrijednosti za podatak inteligencije
+```{r, out.width = '5in'}
+sum(is.na(participants$intelligence_important))
 sum(is.na(participants$attractive_important))
-df_cleaned_first <- participants[, c("intelligence_important", "attractive_important")] # potrebni podaci u novom data frame-u
-df_cleaned_first_male <- participants[participants$gender == "male", c("intelligence_important", "attractive_important")]
-df_cleaned_first_female <- participants[participants$gender == "female", c("intelligence_important", "attractive_important")]
+df_cleaned_first <- participants[, c("intelligence_important", "attractive_important")] 
+df_cleaned_first_male <- participants[participants$gender == "male", 
+                                      c("intelligence_important", "attractive_important")]
+df_cleaned_first_female <- participants[participants$gender == "female", 
+                                        c("intelligence_important", "attractive_important")]
 summary(df_cleaned_first)
 summary(df_cleaned_first_male)
 summary(df_cleaned_first_female)
@@ -100,74 +92,33 @@ Na temelju ispisa ovih podataka možemo vidjeti da su medijani za vrijednosti va
 
 Prvo ćemo vizualizirati pomoću box-plota značajnost inteligencije i izgleda na tri načina, za sve sudionike, muškarce pa žene.
 
-```{r, box-plot}
-boxplot(cbind(df_cleaned_first$intelligence_important, df_cleaned_first$attractive_important),
+```{r, box-plot, out.width='5in'}
+boxplot(cbind(df_cleaned_first$intelligence_important, 
+              df_cleaned_first$attractive_important),
         names = c("Inteligencija", "Izgled"),
         main = 'Značajnost inteligencije i izgleda kod svih sudionika - box-plot',
         ylab = 'Ocjena',
         col = c("green", "lightgreen"))
 
-boxplot(cbind(df_cleaned_first_male$intelligence_important, df_cleaned_first_male$attractive_important),
+boxplot(cbind(df_cleaned_first_male$intelligence_important, 
+              df_cleaned_first_male$attractive_important),
         names = c("Inteligencija", "Izgled"),
         main = 'Značajnost inteligencije i izgleda kod muškaraca - box-plot',
         ylab = 'Ocjena',
         col = c("blue", "lightblue"))
 
-boxplot(cbind(df_cleaned_first_female$intelligence_important, df_cleaned_first_female$attractive_important),
+boxplot(cbind(df_cleaned_first_female$intelligence_important, 
+              df_cleaned_first_female$attractive_important),
         names = c("Inteligencija", "Izgled"),
         main = 'Značajnost inteligencije i izgleda kod žena - box-plot',
         ylab = 'Ocjena',
         col = c("pink", "lightpink"))
 
 ```
+
 Na predočenim dijagramima vidljive su prije spomenute razlike kod muškaraca i žena te jednakost medijana kod svih sudionika. Sljedeći dijagrami prikazuju svaki od varijabli za sve tri spomenute kategorije od jedanput. Prvo za značajnost inteligencije, zatim za izgled.
 
-
-```{r, fig.width = 14, fig.height=5}
-
-# za postavljanje 3 box plota jedan kraj drugoga
-par(mfrow = c(1, 3))
-
-boxplot(df_cleaned_first$intelligence_important,
-        main = 'Značajnost inteligencije - Svi',
-        ylab = 'Ocjena',
-        col = "green")
-
-boxplot(df_cleaned_first_male$intelligence_important,
-        main = 'Značajnost inteligencije - Muškarci',
-        ylab = 'Ocjena',
-        col = "blue")
-
-boxplot(df_cleaned_first_female$intelligence_important,
-        main = 'Značajnost inteligencije - Žene',
-        ylab = 'Ocjena',
-        col = "pink")
-
-#završena prva tri box plota
-par(mfrow = c(1, 1))
-
-# postavljanje nova tri
-par(mfrow = c(1, 3))
-
-boxplot(df_cleaned_first$attractive_important,
-        main = 'Značajnost izgleda - Svi',
-        ylab = 'Ocjena',
-        col = "lightgreen")
-
-boxplot(df_cleaned_first_male$attractive_important,
-        main = 'Značajnost izgleda - Muškarci',
-        ylab = 'Ocjena',
-        col = "lightblue")
-
-boxplot(df_cleaned_first_female$attractive_important,
-        main = 'Značajnost izgleda - Žene',
-        ylab = 'Ocjena',
-        col = "lightpink")
-
-par(mfrow = c(1, 1))
-```
-
-Slična promatranja koja su i prije spomenuta mogu se izlučiti i iz ovih prikaza. Sada ćemo te podataka prikazati i uz pomoć histograma. Prvo za inteligenciju zatim za izgled.
+Sada ćemo te podataka prikazati i uz pomoć histograma. Prvo za inteligenciju zatim za izgled.
 
 Prije nego te podatke prikažemo uz pomoć histograma pogledat ćemo u kojem rasponu su ocjene važnosti inteligencije.
 
@@ -176,25 +127,11 @@ summary(participants$intelligence_important)
 ```
 Vidimo da je minimalna ocjena 0, a maksimalna 50.
 
-```{r}
-hist(df_cleaned_first$intelligence_important, main='Značajnost inteligenciju kod partnera', xlab='Intelligence', ylab='Frequency')
-hist(df_cleaned_first_male$intelligence_important, main='Značajnost inteligenciju kod partnera - Muškarci', xlab='Intelligence', ylab='Frequency')
-hist(df_cleaned_first_female$intelligence_important, main='Značajnost inteligenciju kod partnera - Žene', xlab='Intelligence', ylab='Frequency')
-```
-Iz grafa je vidljivo da većina ispitanika, njih preko 250, ocjenjuje značajnost inteligencije u rasponu između 15 i 20.
-
 Sada ćemo pogledati ocjene značajnosti privlačnosti kod partnera. 
 ```{r}
 summary(participants$attractive_important)
 ```
 Vidimo da su ocjene u rasponu od 0 do 100.
-
-```{r}
-hist(df_cleaned_first$attractive_important, main='Značajnost privlačnosti kod partnera', xlab='Attractiveness', ylab='Frequency')
-hist(df_cleaned_first_male$attractive_important, main='Značajnost privlačnosti kod partnera - Muškarci', xlab='Attractiveness', ylab='Frequency')
-hist(df_cleaned_first_female$attractive_important, main='Značajnost privlačnosti kod partnera - Žene', xlab='Attractiveness', ylab='Frequency')
-```
-Slično kao i kod važnosti inteligencije, najčešća ocjena važnosti privlačnosti je između 10 i 20.
 
 Podatke o važnosti atraktivnosti i inteligencije ćemo usporediti u histogramu.
 ```{r}
@@ -208,36 +145,115 @@ midpoints <- (head(b, -1) + tail(b, -1)) / 2
 
 data <- t(cbind(h1$counts, h2$counts))
 
-barplot(data, beside = TRUE, col = c("purple", "lightgreen"), xlab = "Importance", ylab = 'Frequency', names.arg = midpoints)
-legend("topright", c("intelligence", "attractiveness"), fill = c("purple", "lightgreen"))
+barplot(data, beside = TRUE, 
+        col = c("purple", "lightgreen"), 
+        xlab = "Importance", 
+        ylab = 'Frequency', 
+        names.arg = midpoints)
+legend("topright", 
+       c("intelligence", "attractiveness"), 
+       fill = c("purple", "lightgreen"))
 
 ```
 
+Iz grafa je vidljivo da većina ispitanika, njih preko 250, ocjenjuje značajnost inteligencije u rasponu između 15 i 20. Iz podataka vidimo da su najčešće vrijednosti za obje važnosti 17.5. Druga najčešća vrijednost važnosti inteligencije je 12.5, dok je za važnost izgleda 22.5.
 
-Iz podataka vidimo da su najčešće vrijednosti za obje važnosti 17.5. Druga najčešća vrijednost važnosti inteligencije je 12.5, dok je za važnost izgleda 22.5.
-
-Za provjeru normalnosti podataka planiramo koristiti qq-plotove i test o jednakosti varijanci.
 ```{r}
-qqnorm(df_cleaned_first$attractive_important, pch = 1, frame = FALSE, main = "Važnost izgleda - Svi")
-qqline(df_cleaned_first$attractive_important, col = "blue", lwd = "2")
 
-qqnorm(df_cleaned_first$intelligence_important, pch = 1, frame = FALSE, main = "Važnost inteligencije - Svi")
-qqline(df_cleaned_first$intelligence_important, col = "blue", lwd = "2")
+b <- seq(0, 100, by = 5)
+
+h3 <- hist(df_cleaned_first_male$intelligence_important, breaks = b, plot = FALSE)
+h4 <- hist(df_cleaned_first_male$attractive_important, breaks = b, plot = FALSE)
+
+midpoints <- (head(b, -1) + tail(b, -1)) / 2
+
+data <- t(cbind(h3$counts, h4$counts))
+
+barplot(data, beside = TRUE, 
+        col = c("blue", "lightblue"), 
+        xlab = "Importance", 
+        ylab = 'Frequency', 
+        names.arg = midpoints)
+legend("topright", 
+       c("intelligence", "attractiveness"), 
+       fill = c("blue", "lightblue"))
+
 ```
 
 ```{r}
-qqnorm(df_cleaned_first_male$attractive_important, pch = 1, frame = FALSE, main = "Važnost izgleda - Muškarci")
-qqline(df_cleaned_first_male$attractive_important, col = "blue", lwd = "2")
 
-qqnorm(df_cleaned_first_male$intelligence_important, pch = 1, frame = FALSE, main = "Važnost inteligencije - Muškarci")
-qqline(df_cleaned_first_male$intelligence_important, col = "blue", lwd = "2")
+b <- seq(0, 100, by = 5)
+
+h5 <- hist(df_cleaned_first_female$intelligence_important, breaks = b, plot = FALSE)
+h6 <- hist(df_cleaned_first_female$attractive_important, breaks = b, plot = FALSE)
+
+midpoints <- (head(b, -1) + tail(b, -1)) / 2
+
+data <- t(cbind(h5$counts, h6$counts))
+
+barplot(data, beside = TRUE, 
+        col = c("blue", "lightblue"), 
+        xlab = "Importance", 
+        ylab = 'Frequency', 
+        names.arg = midpoints)
+legend("topright", 
+       c("intelligence", "attractiveness"), 
+       fill = c("blue", "lightblue"))
+
+```
+
+Za provjeru normalnosti podataka planiramo koristiti qq-plotove i test o jednakosti varijanci za provjeru jednakosti varijanci.
+```{r}
+qqnorm(df_cleaned_first$attractive_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost izgleda - Svi")
+qqline(df_cleaned_first$attractive_important, 
+       col = "blue", 
+       lwd = "2")
+
+qqnorm(df_cleaned_first$intelligence_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost inteligencije - Svi")
+qqline(df_cleaned_first$intelligence_important, 
+       col = "blue", 
+       lwd = "2")
+```
+
+```{r}
+qqnorm(df_cleaned_first_male$attractive_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost izgleda - Muškarci")
+qqline(df_cleaned_first_male$attractive_important, 
+       col = "blue", 
+       lwd = "2")
+
+qqnorm(df_cleaned_first_male$intelligence_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost inteligencije - Muškarci")
+qqline(df_cleaned_first_male$intelligence_important, 
+       col = "blue", 
+       lwd = "2")
 ```
 ```{r}
-qqnorm(df_cleaned_first_female$attractive_important, pch = 1, frame = FALSE, main = "Važnost izgleda - Žene")
-qqline(df_cleaned_first_female$attractive_important, col = "blue", lwd = "2")
+qqnorm(df_cleaned_first_female$attractive_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost izgleda - Žene")
+qqline(df_cleaned_first_female$attractive_important, 
+       col = "blue", 
+       lwd = "2")
 
-qqnorm(df_cleaned_first_female$intelligence_important, pch = 1, frame = FALSE, main = "Važnost inteligencije - Žene")
-qqline(df_cleaned_first_female$intelligence_important, col = "blue", lwd = "2")
+qqnorm(df_cleaned_first_female$intelligence_important, 
+       pch = 1, 
+       frame = FALSE, 
+       main = "Važnost inteligencije - Žene")
+qqline(df_cleaned_first_female$intelligence_important, 
+       col = "blue", 
+       lwd = "2")
 ```
 
 
@@ -279,11 +295,14 @@ cat("Varijanca od intelligence_important za žene:", var_intelligence_female, "\
 
 Te radimo F-test:
 ```{r}
-var.test(df_cleaned_first$attractive_important, df_cleaned_first$intelligence_important)
+var.test(df_cleaned_first$attractive_important, 
+         df_cleaned_first$intelligence_important)
 
-var.test(df_cleaned_first_male$attractive_important, df_cleaned_first_male$intelligence_important)
+var.test(df_cleaned_first_male$attractive_important, 
+         df_cleaned_first_male$intelligence_important)
 
-var.test(df_cleaned_first_female$attractive_important, df_cleaned_first_female$intelligence_important)
+var.test(df_cleaned_first_female$attractive_important, 
+         df_cleaned_first_female$intelligence_important)
 ```
 
 Zaključujemo uz p-vrijednosti koje su manje od predodređene razine značajnosti od 0.05 da su te varijance različite. Odbacujemo H0 hipotezu u koristi H1 te ćemo koristiti T-test za dva uzorka uz nejednake varijance. 
@@ -371,13 +390,35 @@ Ovdje smo ispisali samo dio različitih vrijednosti u stupcu field kojih ima 252
 Postoje mnogi načini za svrstavanje zanimanja sudionika, u ovom slučaju na različite podskupove. Cilj podjele na manji broj kategorija bio je dobiti nezavisne podskupove zanimanja sa zajedničkim karakteristikama kako bi kategorije bile relevantne za predmet našeg istraživanja - razlika u interesu za gaming prema zanimanju korisnika. Osim koherencije kategorija cilj je bio i smanjenje dimenzionalnosti uz, ako je moguće, održavanje podjednake raspodjele sudionika po kategorijama. Ovim smjernicama stvarali smo kategorije srodnih zanimanja te smo metodom pokušaja i pogreške došli do sljedeće kategorizacije - Business&Economics, STEM, Social Studies&Humanities, Law&International Affairs.
 
 ```{r}
-bussines_economics_keywords <- c("economy", "economics", "econs", "finance", "finanace", "financial", "business", "consulting", "fundraising", "marketing", "mba", "money")
+bussines_economics_keywords <- c("economy", "economics", "econs", 
+                                 "finance", "finanace", "financial", 
+                                 "business", "consulting", "fundraising", 
+                                 "marketing", "mba", "money")
 
-stem_keywords <- c("architecture", "engineering", "operations research", "engg.", "computer science", "science", "scientific", "chemistry", "biology", "biotechnology", "biotechnology", "biochemsistry", "epidemiology", "genetics", "physics", "marine geophysics", "mathematics", "math", "statistics", "stats", "applied maths", "climate", "ecology", "urban planning", "nutrition", "physiology", "nutritiron", "health", "medical informatics", "speech", "medicine", "biomedicine", "biomedical")
+stem_keywords <- c("architecture", "engineering", "operations research", 
+                   "engg.", "computer science", "science", "scientific", 
+                   "chemistry", "biology", "biotechnology", "biotechnology",
+                   "biochemsistry", "epidemiology", "genetics", "physics", 
+                   "marine geophysics", "mathematics", "math", "statistics", 
+                   "stats", "applied maths", "climate", "ecology", 
+                   "urban planning", "nutrition", "physiology", 
+                   "nutritiron", "health", "medical informatics", 
+                   "speech", "medicine", "biomedicine", "biomedical")
 
-social_studies_humanities_keyword <- c("american studies", "history", "anthropology", "qmss", "psychology", "sociology", "social", "ma in quantitative methods", "philosophy", "religion", "literature", "english", "french", "poetry", "writing", "polish", "classics", "education", "teaching", "instructional ", "tesol", "art", "arts", "acting", "film", "theater", "theatre", "communications", "journalism")
+social_studies_humanities_keyword <- c("american studies", "history", 
+                                       "anthropology", "qmss", "psychology",
+                                       "sociology", "social", "ma in quantitative methods", 
+                                       "philosophy", "religion", "literature", 
+                                       "english", "french", "poetry", "writing", 
+                                       "polish", "classics", "education", 
+                                       "teaching", "instructional ", "tesol", 
+                                       "art", "arts", "acting", "film", 
+                                       "theater", "theatre", "communications", 
+                                       "journalism")
 
-law_keywords <- c("law", "human rights", "international", "intrernational affairs", "public", "relations")
+law_keywords <- c("law", "human rights", 
+                  "international", "intrernational affairs", 
+                  "public", "relations")
 
 categorize_field <- function(field) {
   matches <- c(
@@ -402,7 +443,9 @@ df_field_gaming$field = sapply(df_field_gaming$field, categorize_field)
 ```
 
 ```{r}
-zadane_kategorije <- c("Business&Economics", "Law & International Affairs", "STEM", "Social Studies&Humanities")
+zadane_kategorije <- c("Business&Economics", 
+                       "Law & International Affairs", 
+                       "STEM", "Social Studies&Humanities")
 
 redovi_bez_zadanih_kategorija <- subset(df_field_gaming, !(field %in% zadane_kategorije))
 
@@ -457,39 +500,11 @@ U nastavku slijede mjere centralne tendencije za navedena zanimanja te vizualiza
 
 ```{r}
 aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), mean)
-aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), median)
-aggregate(df_field_gaming["gaming"], list(df_field_gaming$field), var)
-
 ```
 
-Na temelju medijana, aritmetičke sredine i varijance ocjena za gaming grupiranih po prije određenim kategorijama na prvi pogled možemo primijetiti da je vrijednost aritmetičke sredine manja za jednu ocjenu, a vrijednost medijana za dvije ocjene od ostalih kategorija.
+Na temeljuaritmetičke sredine ocjena za gaming grupiranih po prije određenim kategorijama na prvi pogled možemo primijetiti da je vrijednost aritmetičke sredine manja za jednu ocjenu.
 
 ```{r}
-boxplot(df_field_gaming[df_field_gaming["field"]=="Business&Economics",]$gaming,
-        main='Business&Economics - Gaming box-plot',
-        ylab='Gaming grade',
-        xlab='Business&Economics',
-        col = "pink")
-
-boxplot(df_field_gaming[df_field_gaming["field"]=="Law & International Affairs",]$gaming,
-        main='Law & International Affairs - Gaming box-plot',
-        ylab='Gaming grade',
-        xlab='Law & International Affairs',
-        col = "pink")
-
-boxplot(df_field_gaming[df_field_gaming["field"]=="Social Studies&Humanities",]$gaming,
-        main='Social Studies&Humanities - Gaming box-plot',
-        ylab='Gaming grade',
-        xlab='Social Studies&Humanities',
-        col = "pink")
-
-boxplot(df_field_gaming[df_field_gaming["field"]=="STEM",]$gaming,
-        main='STEM - Gaming box-plot',
-        ylab='Gaming grade',
-        xlab='STEM',
-        col = "pink")
-
-
 #boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
 
 boxplot(gaming ~ field, df_field_gaming,
@@ -500,16 +515,7 @@ boxplot(gaming ~ field, df_field_gaming,
 )
 ```
 
-Prije primijećena manja vrijednost medijana vidljiva je i na prikazanom boxplotu ocjena interesa za gaming po kategorijama.
-
-
-```{r}
-hist(df_field_gaming$gaming,
-     breaks = seq(min(df_field_gaming$gaming) - 0.5, max(df_field_gaming$gaming) + 0.5, 1),
-     main = "Histogram ocjena za gaming svih sudionika",
-     xlab = "Ocjena interesa za gaming"
-)
-```
+Manja vrijednost medijana vidljiva je i na prikazanom boxplotu ocjena interesa za gaming po kategorijama.
 
 ```{r}
 
@@ -523,24 +529,6 @@ barplot(
   main = 'Barplot za kategorije'
 )
 
-```
-
-```{r}
-table(df_field_gaming$gaming, df_field_gaming$field)
-max_length <- max(table(df_field_gaming$gaming, df_field_gaming$field))
-# Kreiranje linijskog plot-a
-plot(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "STEM"]), type = 'l', col = 'red',
-     xlim = c(min(df_field_gaming$gaming), max(df_field_gaming$gaming)),
-     ylim = c(0, 100),
-     xlab = 'Ocjena za interesa za gaming', ylab = 'Frekvencija', main = 'Linijski plot za kategorije')
-
-# Dodavanje linijskih plot-ova za ostale kategorije
-lines(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "Business&Economics"]), col = 'lightblue')
-lines(1:10, table(df_field_gaming$gaming[df_field_gaming$field == "Law & International Affairs"]), col = 'purple')
-lines(1:max_length, table(df_field_gaming$gaming[df_field_gaming$field == "Social Studies&Humanities"])[1:max_length], col = 'lightgreen')
-
-# Dodavanje legendi
-legend("topright",c("Business&Economics","Law & International Affairs", "Social Studies&Humanities","STEM"),fill = c("lightblue", "purple", "lightgreen", "red"))
 ```
 
 Koristeći različite vrste prikaza podataka za vrstu kojom raspolažemo, kategorijska varijabla područja zanimanja i numerička varijabla ocjene, prikazali smo raspodjelu podataka po kategorijama i ocjenama unutar svake kategorije te međusobno između kategorija.
@@ -574,20 +562,11 @@ df_field_gaming <- df_field_gaming %>%
     TRUE ~ "Visoka"
   ))
 
-# Ispisivanje rezultata
-head(df_field_gaming)
 ```
 
 ```{r}
 kat_gaming_count <- table(df_field_gaming$kat_gaming)
 print(kat_gaming_count)
-barplot(kat_gaming_count, 
-        main = "Histogram ocjena kategorija",
-        xlab = "Kategorija ocjene",
-        ylab = "Broj ocjena u kategoriji",
-        col = c("red", "green", "blue"),  # Boje za svaku kategoriju
-        legend.text = TRUE
-)
 ```
 
 Nakon kategorizacije ocjena interesa za gaming možemo nastaviti s prikazom kontingencijske tablice, zatim dodavanjem marginalnih suma i provjerom pretpostavke testa nezavisnosti.
@@ -596,10 +575,6 @@ Kontingencijska tablica
 
 ```{r}
 kontigencijska_tabl <- table(df_field_gaming$field, df_field_gaming$kat_gaming)
-kontigencijska_tabl
-```
-
-```{r}
 margine_tabl = addmargins(kontigencijska_tabl)
 print(margine_tabl)
 ```
@@ -684,11 +659,6 @@ lillie.test(df_field_gaming$gaming[df_field_gaming$field=='Business&Economics'])
 lillie.test(df_field_gaming$gaming[df_field_gaming$field=='Law & International Affairs'])
 lillie.test(df_field_gaming$gaming[df_field_gaming$field=='Social Studies&Humanities'])
 lillie.test(df_field_gaming$gaming[df_field_gaming$field=='STEM'])
-
-hist(df_field_gaming$gaming[df_field_gaming$field=='Business&Economics'])
-hist(df_field_gaming$gaming[df_field_gaming$field=='Law & International Affairs'])
-hist(df_field_gaming$gaming[df_field_gaming$field=='Social Studies&Humanities'])
-hist(df_field_gaming$gaming[df_field_gaming$field=='STEM'])
 ```
 
 Testiranjem normalnosti zaključujemo da nije zadovoljen uvjet normalnosti jer je p-vrijednost testa manja od odabrane razine značajnosti, 0.05. Kao sljedeći korak pokušat ćemo transformirati podatke kako bismo ih približili normalnoj distribuciji - koristit više transformacijskih tehnika te odabrati najbolju. Ovdje je prikazana logaritamska transformacija. Nakon transformacije ćemo provesti test normalnosti.
@@ -703,12 +673,6 @@ lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Business&Economic
 lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Law & International Affairs'])
 lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='Social Studies&Humanities'])
 lillie.test(df_field_gaming$log_gaming[df_field_gaming$field=='STEM'])
-
-
-hist(df_field_gaming$log_gaming[df_field_gaming$field=='Business&Economics'])
-hist(df_field_gaming$log_gaming[df_field_gaming$field=='Law & International Affairs'])
-hist(df_field_gaming$log_gaming[df_field_gaming$field=='Social Studies&Humanities'])
-hist(df_field_gaming$log_gaming[df_field_gaming$field=='STEM'])
 ```
 
 Eksperimentiranjem s transformacijskim tehnika nismo uspjeli transformirati ocjene interesa za gaming kako bismo potvrdili pretpostavku normalnosti podataka. Iz tog razloga ne možemo nastaviti s provedbom ANOVA testa jer nisu ispunjene sve pretpostavke.
@@ -731,72 +695,58 @@ kruskal.test(df_field_gaming$gaming ~ df_field_gaming$field, data = df_field_gam
 
 Testiranjem smo dobili da je p-vrijednost 0.001117 te zaključujemo da možemo odbaciti nultu hipotezu u korist alternative - barem dva medijana nisu jednaka.
 
-
-```{r grafički prikaz sredina populacija}
-# Graficki prikaz podataka
-boxplot(df_field_gaming$gaming ~ df_field_gaming$field)
-```
-
-Rezultat Kruskal-Wallisovog testa vidljiv je također na prikazanom box plotu. U drugom načinu pristupa pitanju postoji li razlika za interes za gaming prema području zanimanja sudionika došli smo do zaključka da razlika postoji.
+Rezultat Kruskal-Wallisovog testa vidljiv je također na prije prikazanom box plotu gdje se vidi razlika u medijanu između kategorija. U drugom načinu pristupa pitanju postoji li razlika za interes za gaming prema području zanimanja sudionika došli smo do zaključka da razlika postoji.
 
 Drugim riječima, postoji statistički značajna razlika između ocjena interesa za gaming prema području zanimanja sudionika.
 
-##3.Možemo li temeljem drugih varijabli predvidjeti hoće li se sudioniku svidjeti partner?
+## 3.Možemo li temeljem drugih varijabli predvidjeti hoće li se sudioniku svidjeti partner?
 
 Prije same analize podataka potrebno je očistiti skup podataka odnosno ukloniti sve nepostojeće vrijednosti.
 
 ```{r}
-# sum(is.na(dates$attractive_o))
-# sum(is.na(dates$sincere_o))
-# sum(is.na(dates$intelligence_o))
-# sum(is.na(dates$funny_o))
-# sum(is.na(dates$ambitious_o))
-# sum(is.na(dates$shared_interests_o))
-# sum(is.na(dates$attractive_partner))
-# sum(is.na(dates$sincere_partner))
-# sum(is.na(dates$intelligence_partner))
-# sum(is.na(dates$funny_partner))
-# sum(is.na(dates$ambition_partner))
-# sum(is.na(dates$shared_interests_partner))
-# sum(is.na(dates$like))
-# sum(is.na(dates$guess_prob_liked))
-# sum(is.na(dates$met))
-# sum(is.na(dates$decision))
-
 na_count_per_column <- sapply(dates, function(x) sum(is.na(x)))
 data.frame(Column = names(na_count_per_column), NA_Count = na_count_per_column)
-head(dates[!complete.cases(dates),])
 ```
 
 ```{r}
-columns_of_interest <- c("attractive_o", "sincere_o", "intelligence_o", "funny_o", "ambitious_o", "shared_interests_o",
-                         "attractive_partner", "sincere_partner", "intelligence_partner", "funny_partner",
-                         "ambition_partner", "shared_interests_partner", "like", "guess_prob_liked", "met")
+columns_of_interest <- c("attractive_o", "sincere_o", "intelligence_o", 
+                         "funny_o", "ambitious_o", "shared_interests_o",
+                         "attractive_partner", "sincere_partner", 
+                         "intelligence_partner", "funny_partner",
+                         "ambition_partner", "shared_interests_partner", 
+                         "like", "guess_prob_liked", "met")
 threshold <- length(columns_of_interest) / 2
-partially_filtered_dates <- dates[rowSums(is.na(dates[, columns_of_interest])) <= threshold, ]
-partially_filtered_dates
+partially_filtered_dates <- dates[
+  rowSums(is.na(dates[, columns_of_interest])) <= threshold, 
+  ]
 
 ```
 
 ````{r}
-partially_filtered_dates[, columns_of_interest] <- lapply(partially_filtered_dates[, columns_of_interest, drop = FALSE], function(x) {
+partially_filtered_dates[, columns_of_interest] <- 
+  lapply(partially_filtered_dates
+         [, columns_of_interest, drop = FALSE], function(x) {
   median_value <- median(x, na.rm = TRUE)
   x[is.na(x)] <- median_value
   return(x)
 })
 
-#filtered_dates <- partially_filtered_dates
+filtered_dates <- partially_filtered_dates
 #filtered_dates
 
 ````
 
 Definiramo stršeće vrijednosti:
 ```{r}
-boxplots <- lapply(columns_of_interest, function(column_name) {
-  boxplot(filtered_dates[[column_name]], main = column_name)
-})
+#boxplots <- lapply(columns_of_interest, function(column_name) {
+# boxplot(filtered_dates[[column_name]], main = column_name)
+#})
+
+boxplot(filtered_dates[["met"]], main = "met")
 
 ```
+Met ima stršeće vrijednosti koje ćemo maknuti na način da ćemo vrijednosti veće od 1 smanjiti na 1.
+
 ```{r}
 filtered_dates$met[filtered_dates$met > 1] <- 1
 
@@ -806,7 +756,6 @@ unique(filtered_dates$met)
 Da bismo procijenili može li se na temelju ocjena sudionika o njihovim partnerima predvidjeti je li se sudioniku partner svidio, prvo ćemo definirati što smatramo "sviđanjem partnera". U našoj analizi, smatrati će se da se sudioniku svidio partner ako sudionik svoje cjelokupno iskustvo ocijeni s 1, a neuspješnim ako je ocijenjeno s 0. Ova definicija uzima u obzir subjektivnost ocjena sudionika.
 
 Budući da je odluka o tome je li se sudioniku partner svidio binarna (1 za "svidio mu se partner", 0 za "nije mu se svidio partner"), odlučili smo primijeniti model logističke regresije. Logistička regresija je statistički model koji se koristi za analizu odnosa između binarne zavisne promjenljive i više nezavisnih promjenljivih. Oblik modela je sljedeći:
-
 
 $$\begin{aligned}
 F(x'\beta) = \Lambda(x'\beta) = \frac{1}{1 + e^{-x'\beta}}
@@ -840,7 +789,12 @@ testing_set <- filtered_dates[-train_indices, ]
 Kod za učenje i rezultati učenja su vidljivi ovdje:
 ```{r}
 
-logistic_model <- glm(decision ~ attractive_o + sincere_o + intelligence_o + funny_o + ambitious_o + shared_interests_o + attractive_partner + sincere_partner + intelligence_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked + met, data = training_set, family = "binomial")
+logistic_model <- glm(decision ~ attractive_partner + 
+                        sincere_partner + intelligence_partner + 
+                        funny_partner + ambition_partner + 
+                        shared_interests_partner + like + 
+                        guess_prob_liked + met, 
+                      data = training_set, family = "binomial")
 
 summary(logistic_model)
 ```
@@ -863,7 +817,11 @@ actual_class <- testing_set$decision
 conf_matrix <- table(actual_class, predicted_class)
 
 roc_curve <- roc(actual_class, predicted_class)
-plot(roc_curve, main = "ROC Curve", col = "blue", lwd = 2, xlab = "Lažno Pozitivni", ylab="Istinito pozitivni")
+plot(roc_curve, main = "ROC Curve", 
+     col = "blue", 
+     lwd = 2, 
+     xlab = "Lažno Pozitivni", 
+     ylab="Istinito pozitivni")
 ```
 
 S AUC vrijednosti ispod grafa:
@@ -888,7 +846,7 @@ pheatmap(
   cluster_cols = FALSE,
   cluster_rows = FALSE,
   display_numbers=TRUE,
-  color = colorRampPalette(c("blue", "steelblue", "white"))(10),  # Adjust color palette
+  color = colorRampPalette(c("blue", "steelblue", "white"))(10),
   show_rownames = TRUE,  # Show row names (actual labels)
   show_colnames = TRUE,  # Show column names (predicted labels)
   angle_col = 0,       # Rotate column names for better visibility
@@ -974,10 +932,16 @@ H_1: \beta_g \neq 0
 Sada ćemo ići po svim regresorima u originalnom modelu, istrenirati broj modela koji je jednak originalnom broju regresora, ali svaki od tih modela neće imati regresor koji želimo testirati. I vidjeti koliko je li neki regresor redundantan s nivoom značajnosti 0.05. Rezultati su vidljivi u donjoj tablici: 
 
 ```{r}
+columns_of_interest <- c("attractive_partner", "sincere_partner", 
+                         "intelligence_partner", "funny_partner",
+                         "ambition_partner", "shared_interests_partner", 
+                         "like", "guess_prob_liked", "met")
 models <- list()
 
 for (col in columns_of_interest) {
-  formula <- as.formula(paste("decision ~", paste(columns_of_interest[!columns_of_interest %in% col], collapse = "+")))
+  formula <- as.formula(paste("decision ~", 
+                              paste(columns_of_interest[!columns_of_interest %in% col], 
+                                    collapse = "+")))
   model <- glm(formula, data = training_set, family = "binomial")
   models[[col]] <- model
 }
@@ -1006,12 +970,16 @@ p_values <- p_values %>% mutate(p_value = sapply(p_value, custom_format))
 p_values
 ```
 
-Vidimo po rezultatima da su "attractive_partner" i "like" najznačajniji parametri, dok "intelligance_partner" i "intelligance_o" najneznačajniji za izlaz modela. Što je i očekivano po vrijednostima parametara u originalnom modelu.
+Vidimo po rezultatima da su "attractive_partner" i "like" najznačajniji parametri, dok "intelligance_partner" najneznačajniji za izlaz modela. Što je i očekivano po vrijednostima parametara u originalnom modelu.
 
 
 Za konačni eksperiment u ovom radu, htjeli smo vidjeti je li moguće poboljšati izlaz modela ako izbacimo regresore koji su zadovoljili LR test. Konačni rezultati su ovdje:
 ````{r}
-logistic_model_better <- glm(decision ~ attractive_o + sincere_o + attractive_partner + sincere_partner + funny_partner + ambition_partner + shared_interests_partner + like + guess_prob_liked, data = training_set, family = "binomial")
+logistic_model_better <- glm(decision ~ attractive_partner + 
+                               sincere_partner + funny_partner + 
+                               ambition_partner + shared_interests_partner + 
+                               like + guess_prob_liked, 
+                             data = training_set, family = "binomial")
 
 logistic_model_better
 
@@ -1035,7 +1003,7 @@ pheatmap(
   cluster_cols = FALSE,
   cluster_rows = FALSE,
   display_numbers=TRUE,
-  color = colorRampPalette(c("blue", "steelblue", "white"))(10),  # Adjust color palette
+  color = colorRampPalette(c("blue", "steelblue", "white"))(10),
   show_rownames = TRUE,  # Show row names (actual labels)
   show_colnames = TRUE,  # Show column names (predicted labels)
   angle_col = 0,       # Rotate column names for better visibility
@@ -1047,5 +1015,15 @@ pheatmap(
 accuracy <- sum(diag(conf_matrix)) / sum(conf_matrix)
 cat("Accuracy:", accuracy, "\n")
 ````
-Izbacivanjem smo uspjeli dobiti poboljšanje od 0.2%.
+Na temelju ovog modela odgovorili smo na pitanje može li se predvidjeti hoće li se sudioniki svidjeti partner ili neće. U procesu izgradnje modela odredili smo koje varijable pozitivno utječu na odgovor na ovo pitanje te smo uz korištenje tih varijabli izgradili model. Varijable su sljedeće:
+
+attractive_partner - Ocjena sudionika o privlačnosti njihovog partnera.
+sincere_partner - Ocjena sudionika o iskrenosti njihovog partnera.
+funny_partner - Ocjena sudionika o smislu za humor njihovog partnera.
+ambition_partner - Ocjena sudionika o ambiciji njihovog partnera.
+shared_interests_partner - Ocjena koju partner daje za zajedničke interese.
+like - Koliko je sudioniku bio sviđao njihov partner.
+guess_prob_liked - Pretpostavka sudionika o tome koliko je vjerojatno da se njihovom partneru svidjeli.
+
+S time da smo odredili kako varijable attractive_partner i like najviše utječu na izlaz modela.
 
